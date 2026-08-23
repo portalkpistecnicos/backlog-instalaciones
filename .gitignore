@@ -1,0 +1,8 @@
+# Base de datos fuente (archivo pesado, no debe subirse al repo publico)
+BBDD/
+
+# Logs de ejecucion del script de actualizacion
+logs/
+
+# Temporales
+*.tmp
