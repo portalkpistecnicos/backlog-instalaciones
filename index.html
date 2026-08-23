@@ -429,6 +429,59 @@
   }
   .explorer-item .bd-value{ font-size:1.25rem; }
   .explorer-item.total{ background:var(--brand-blue-soft); }
+
+  .explorer-table-wrap{
+    overflow-x:auto;
+    border:1px solid var(--border);
+    border-radius:10px;
+  }
+  .explorer-table{
+    width:100%;
+    min-width:560px;
+    border-collapse:collapse;
+    font-size:0.88rem;
+  }
+  .explorer-table caption{ caption-side:top; text-align:left; }
+  .explorer-table th, .explorer-table td{
+    padding:0.7rem 0.85rem;
+    text-align:right;
+    white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+    border-bottom:1px solid var(--border);
+  }
+  .explorer-table th:first-child, .explorer-table td:first-child{
+    text-align:left;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:500;
+    white-space:normal;
+  }
+  .explorer-table thead th{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-faint);
+    font-weight:600;
+    background:var(--surface-2);
+  }
+  .explorer-table tbody td{ font-family:'IBM Plex Mono', monospace; }
+  .explorer-table tbody tr:last-child td{ border-bottom:none; }
+  .explorer-table tbody tr:hover{ background:var(--surface-2); }
+  .explorer-table tfoot td{
+    font-weight:700;
+    background:var(--brand-blue-soft);
+    border-bottom:none;
+  }
+  .explorer-table .bk-pill{
+    display:inline-block;
+    padding:0.15rem 0.5rem;
+    border-radius:999px;
+    font-weight:600;
+  }
+  .explorer-table .bk-pill.good{ background:var(--good-soft); color:var(--good); }
+  .explorer-table .bk-pill.warn{ background:var(--warn-soft); color:var(--warn); }
+  .explorer-table .bk-pill.critical{ background:var(--critical-soft); color:var(--critical); }
+
   .explorer-note{
     margin-top:1.1rem;
     font-size:0.78rem;
@@ -719,10 +772,12 @@
 
     <div class="explorer-controls">
       <label for="bucketSelect">Selecciona un bucket (vpi_cod_bucket)</label>
-      <select id="bucketSelect" class="bucket-select"></select>
+      <select id="bucketSelect" class="bucket-select">
+        <option value="__ALL__">Todos los buckets</option>
+      </select>
     </div>
 
-    <div class="explorer-result">
+    <div class="explorer-result" id="explorerSingle" hidden>
       <div class="explorer-hero">
         <span class="stat-label">Backlog Instala</span>
         <span class="num"><span id="bkValue">–</span><span class="unit">días</span></span>
@@ -747,7 +802,33 @@
       </div>
     </div>
 
-    <p class="explorer-note">Recuento de <code>peti_numero</code> por <code>vpi_cod_bucket</code>, acumulado de todos los snapshots de agosto (01–22 ago). Al igual que las tarjetas por agencia, excluye filas con <code>filtro_backlog_exclusion=1</code>; a diferencia de ellas, suma <b style="color:var(--ink);">todo el mes</b> en vez de solo el snapshot del día — por eso los valores de backlog no coinciden exactamente con la vista por agencia.</p>
+    <div class="explorer-table-wrap" id="explorerAll">
+      <table class="explorer-table">
+        <thead>
+          <tr>
+            <th>Bucket</th>
+            <th>Cancelada</th>
+            <th>En proceso</th>
+            <th>Terminada</th>
+            <th>Total general</th>
+            <th>Backlog</th>
+          </tr>
+        </thead>
+        <tbody id="bucketTableBody"></tbody>
+        <tfoot>
+          <tr>
+            <td>Zona Norte (todos)</td>
+            <td id="bkAllCanc">–</td>
+            <td id="bkAllProc">–</td>
+            <td id="bkAllTerm">–</td>
+            <td id="bkAllTotal">–</td>
+            <td id="bkAllBacklog">–</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <p class="explorer-note">Recuento de <code>peti_numero</code> por <code>vpi_cod_bucket</code>, acumulado de todos los snapshots de agosto (01–22 ago). Al igual que las tarjetas por agencia, excluye filas con <code>filtro_backlog_exclusion=1</code>; a diferencia de ellas, suma <b style="color:var(--ink);">todo el mes</b> en vez de solo el snapshot del día — por eso los valores de backlog no coinciden exactamente con la vista por agencia. Ordenado de mayor a menor backlog.</p>
   </section>
 
   <section class="method">
@@ -785,6 +866,19 @@
   };
 
   var fmtInt = new Intl.NumberFormat('es-CL');
+  var fmtDec = function(n){ return n.toLocaleString('es-CL', {minimumFractionDigits:2, maximumFractionDigits:2}); };
+
+  function calc(d){
+    var total = d.c + d.p + d.t;
+    var rate = (d.c + d.t) / 6;
+    var backlog = rate > 0 ? (d.p / rate) : 0;
+    return { total: total, backlog: backlog };
+  }
+  function severity(backlog){
+    if(backlog < 2) return 'good';
+    if(backlog < 4) return 'warn';
+    return 'critical';
+  }
 
   var select = document.getElementById('bucketSelect');
   Object.keys(bucketData).forEach(function(name){
@@ -794,30 +888,71 @@
     select.appendChild(opt);
   });
 
-  function render(name){
+  var singleView = document.getElementById('explorerSingle');
+  var allView = document.getElementById('explorerAll');
+
+  function renderSingle(name){
     var d = bucketData[name];
     if(!d) return;
-    var total = d.c + d.p + d.t;
-    var rate = (d.c + d.t) / 6;
-    var backlog = rate > 0 ? (d.p / rate) : 0;
+    var r = calc(d);
 
-    document.getElementById('bkValue').textContent = backlog.toLocaleString('es-CL', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('bkValue').textContent = fmtDec(r.backlog);
     document.getElementById('bkProc').textContent = fmtInt.format(d.p);
     document.getElementById('bkTerm').textContent = fmtInt.format(d.t);
     document.getElementById('bkCanc').textContent = fmtInt.format(d.c);
-    document.getElementById('bkTotal').textContent = fmtInt.format(total);
+    document.getElementById('bkTotal').textContent = fmtInt.format(r.total);
 
     var heroNum = document.querySelector('.explorer-hero .num');
-    heroNum.classList.remove('warn','good','critical');
-    if(backlog < 2){ heroNum.style.color = 'var(--good)'; }
-    else if(backlog < 4){ heroNum.style.color = 'var(--warn)'; }
-    else { heroNum.style.color = 'var(--critical)'; }
+    heroNum.style.color = 'var(--' + severity(r.backlog) + ')';
   }
 
-  select.addEventListener('change', function(){ render(this.value); });
+  function renderAll(){
+    var names = Object.keys(bucketData).sort(function(a,b){
+      return calc(bucketData[b]).backlog - calc(bucketData[a]).backlog;
+    });
+    var tbody = document.getElementById('bucketTableBody');
+    tbody.innerHTML = '';
+    var sumC=0, sumP=0, sumT=0;
 
-  var initial = "VINA DEL MAR 3_MULT";
-  select.value = initial;
-  render(initial);
+    names.forEach(function(name){
+      var d = bucketData[name];
+      var r = calc(d);
+      sumC += d.c; sumP += d.p; sumT += d.t;
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + name + '</td>' +
+        '<td>' + fmtInt.format(d.c) + '</td>' +
+        '<td>' + fmtInt.format(d.p) + '</td>' +
+        '<td>' + fmtInt.format(d.t) + '</td>' +
+        '<td>' + fmtInt.format(r.total) + '</td>' +
+        '<td><span class="bk-pill ' + severity(r.backlog) + '">' + fmtDec(r.backlog) + '</span></td>';
+      tbody.appendChild(tr);
+    });
+
+    var totalAll = calc({ c:sumC, p:sumP, t:sumT });
+    document.getElementById('bkAllCanc').textContent = fmtInt.format(sumC);
+    document.getElementById('bkAllProc').textContent = fmtInt.format(sumP);
+    document.getElementById('bkAllTerm').textContent = fmtInt.format(sumT);
+    document.getElementById('bkAllTotal').textContent = fmtInt.format(totalAll.total);
+    document.getElementById('bkAllBacklog').textContent = fmtDec(totalAll.backlog);
+  }
+
+  function onChange(){
+    var val = select.value;
+    if(val === '__ALL__'){
+      singleView.hidden = true;
+      allView.hidden = false;
+    } else {
+      allView.hidden = true;
+      singleView.hidden = false;
+      renderSingle(val);
+    }
+  }
+
+  select.addEventListener('change', onChange);
+
+  renderAll();
+  select.value = '__ALL__';
+  onChange();
 })();
 </script>
