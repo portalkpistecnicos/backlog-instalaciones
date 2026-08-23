@@ -799,8 +799,10 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
   barsEl.innerHTML = agencies.map(function(a){
     var sev = severity(a.backlog);
     var width = gaugePct(a.backlog);
+    var share = zone.enProceso > 0 ? (a.enProceso / zone.enProceso * 100) : 0;
+    var shareLabel = a.name + ': ' + fmtInt.format(a.enProceso) + ' de ' + fmtInt.format(zone.enProceso) + ' en proceso de la zona (' + share.toFixed(1).replace('.', ',') + '%)';
     return '' +
-    '<div class="bar-row">' +
+    '<div class="bar-row" title="' + shareLabel + '">' +
       '<span class="bar-name">' + a.name + '</span>' +
       '<div class="bar-track">' +
         '<div class="bar-fill ' + (sev === 'good' ? 'good' : 'warn') + '" style="width:' + width.toFixed(1) + '%;"></div>' +
