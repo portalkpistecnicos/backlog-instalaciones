@@ -557,7 +557,7 @@
     </div>
     <div class="brandbar-meta">
       <div>Snapshot más reciente</div>
-      <div class="date">22-08-2026</div>
+      <div class="date" id="snapshotDate">–</div>
     </div>
   </div>
 </div>
@@ -567,19 +567,19 @@
   <section class="summary">
     <div class="stat">
       <p class="stat-label">En proceso (hoy)</p>
-      <p class="stat-value">891</p>
+      <p class="stat-value" id="sumProc">–</p>
     </div>
     <div class="stat">
       <p class="stat-label">Terminadas (hoy)</p>
-      <p class="stat-value">953</p>
+      <p class="stat-value" id="sumTerm">–</p>
     </div>
     <div class="stat">
       <p class="stat-label">Canceladas (hoy)</p>
-      <p class="stat-value">482</p>
+      <p class="stat-value" id="sumCanc">–</p>
     </div>
     <div class="stat hero">
       <p class="stat-label">Backlog Instala · Zona Norte</p>
-      <p class="stat-value">3,73<span class="unit">días</span></p>
+      <p class="stat-value"><span id="sumBacklog">–</span><span class="unit">días</span></p>
     </div>
   </section>
 
@@ -589,147 +589,7 @@
       <span class="section-note">días para vaciar el pendiente actual al ritmo de cierre</span>
     </div>
 
-    <div class="cards">
-
-      <!-- VINA DEL MAR — best -->
-      <div class="card">
-        <div class="card-top">
-          <div>
-            <p class="agency-name">Viña del Mar</p>
-            <p class="agency-rank">Rank 1 de 3</p>
-          </div>
-          <span class="chip warn">ATENCIÓN</span>
-        </div>
-
-        <div class="hero-metric">
-          <span class="num warn">3,69</span>
-          <span class="label">días de<br>backlog</span>
-        </div>
-
-        <div class="gauge">
-          <div class="gauge-track">
-            <div class="gauge-zone" style="left:0%; width:40%; background:var(--good-soft);"></div>
-            <div class="gauge-zone" style="left:40%; width:40%; background:var(--warn-soft);"></div>
-            <div class="gauge-zone" style="left:80%; width:20%; background:var(--critical-soft);"></div>
-            <div class="gauge-marker" style="left:73.8%;"></div>
-          </div>
-          <div class="gauge-labels"><span>0</span><span>2</span><span>4</span><span>5</span></div>
-        </div>
-
-        <div class="breakdown">
-          <div class="bd-item">
-            <span class="bd-label">En proceso</span>
-            <span class="bd-value proc">517</span>
-          </div>
-          <div class="bd-item">
-            <span class="bd-label">Terminadas</span>
-            <span class="bd-value">556</span>
-          </div>
-          <div class="bd-item">
-            <span class="bd-label">Canceladas</span>
-            <span class="bd-value">285</span>
-          </div>
-        </div>
-
-        <div class="risk-row">
-          <span class="risk-label">Agenda vencida</span>
-          <span class="risk-value critical">172 / 461 · 37,3%</span>
-        </div>
-      </div>
-
-      <!-- VALPARAISO -->
-      <div class="card">
-        <div class="card-top">
-          <div>
-            <p class="agency-name">Valparaíso</p>
-            <p class="agency-rank">Rank 2 de 3</p>
-          </div>
-          <span class="chip warn">ATENCIÓN</span>
-        </div>
-
-        <div class="hero-metric">
-          <span class="num warn">3,77</span>
-          <span class="label">días de<br>backlog</span>
-        </div>
-
-        <div class="gauge">
-          <div class="gauge-track">
-            <div class="gauge-zone" style="left:0%; width:40%; background:var(--good-soft);"></div>
-            <div class="gauge-zone" style="left:40%; width:40%; background:var(--warn-soft);"></div>
-            <div class="gauge-zone" style="left:80%; width:20%; background:var(--critical-soft);"></div>
-            <div class="gauge-marker" style="left:75.4%;"></div>
-          </div>
-          <div class="gauge-labels"><span>0</span><span>2</span><span>4</span><span>5</span></div>
-        </div>
-
-        <div class="breakdown">
-          <div class="bd-item">
-            <span class="bd-label">En proceso</span>
-            <span class="bd-value proc">282</span>
-          </div>
-          <div class="bd-item">
-            <span class="bd-label">Terminadas</span>
-            <span class="bd-value">296</span>
-          </div>
-          <div class="bd-item">
-            <span class="bd-label">Canceladas</span>
-            <span class="bd-value">153</span>
-          </div>
-        </div>
-
-        <div class="risk-row">
-          <span class="risk-label">Agenda vencida</span>
-          <span class="risk-value warn">70 / 250 · 28,0%</span>
-        </div>
-      </div>
-
-      <!-- SAN ANTONIO — worst -->
-      <div class="card">
-        <div class="card-top">
-          <div>
-            <p class="agency-name">San Antonio</p>
-            <p class="agency-rank">Rank 3 de 3</p>
-          </div>
-          <span class="chip warn">ATENCIÓN</span>
-        </div>
-
-        <div class="hero-metric">
-          <span class="num warn">3,81</span>
-          <span class="label">días de<br>backlog</span>
-        </div>
-
-        <div class="gauge">
-          <div class="gauge-track">
-            <div class="gauge-zone" style="left:0%; width:40%; background:var(--good-soft);"></div>
-            <div class="gauge-zone" style="left:40%; width:40%; background:var(--warn-soft);"></div>
-            <div class="gauge-zone" style="left:80%; width:20%; background:var(--critical-soft);"></div>
-            <div class="gauge-marker" style="left:76.1%;"></div>
-          </div>
-          <div class="gauge-labels"><span>0</span><span>2</span><span>4</span><span>5</span></div>
-        </div>
-
-        <div class="breakdown">
-          <div class="bd-item">
-            <span class="bd-label">En proceso</span>
-            <span class="bd-value proc">92</span>
-          </div>
-          <div class="bd-item">
-            <span class="bd-label">Terminadas</span>
-            <span class="bd-value">101</span>
-          </div>
-          <div class="bd-item">
-            <span class="bd-label">Canceladas</span>
-            <span class="bd-value">44</span>
-          </div>
-        </div>
-
-        <div class="risk-row">
-          <span class="risk-label">Agenda vencida</span>
-          <span class="risk-value warn">18 / 80 · 22,5%</span>
-        </div>
-      </div>
-
-    </div>
+    <div class="cards" id="agencyCards"></div>
   </section>
 
   <section class="compare">
@@ -738,36 +598,13 @@
       <span class="section-note">escala 0–5 días</span>
     </div>
 
-    <div class="bar-row">
-      <span class="bar-name">Viña del Mar</span>
-      <div class="bar-track">
-        <div class="bar-fill warn" style="width:73.8%;"></div>
-        <div class="bar-target" style="left:74.5%;" title="Promedio zona: 3,73"></div>
-      </div>
-      <span class="bar-value">3,69</span>
-    </div>
-    <div class="bar-row">
-      <span class="bar-name">Valparaíso</span>
-      <div class="bar-track">
-        <div class="bar-fill warn" style="width:75.4%;"></div>
-        <div class="bar-target" style="left:74.5%;" title="Promedio zona: 3,73"></div>
-      </div>
-      <span class="bar-value">3,77</span>
-    </div>
-    <div class="bar-row">
-      <span class="bar-name">San Antonio</span>
-      <div class="bar-track">
-        <div class="bar-fill warn" style="width:76.1%;"></div>
-        <div class="bar-target" style="left:74.5%;" title="Promedio zona: 3,73"></div>
-      </div>
-      <span class="bar-value">3,81</span>
-    </div>
+    <div id="compareBars"></div>
   </section>
 
   <section class="explorer">
     <div class="section-head">
       <h2 class="section-title">Backlog por bucket</h2>
-      <span class="section-note">acumulado agosto</span>
+      <span class="section-note" id="bucketPeriodNote">–</span>
     </div>
 
     <div class="explorer-controls">
@@ -828,50 +665,70 @@
       </table>
     </div>
 
-    <p class="explorer-note">Recuento de <code>peti_numero</code> por <code>vpi_cod_bucket</code>, acumulado de todos los snapshots de agosto (01–22 ago). Al igual que las tarjetas por agencia, excluye filas con <code>filtro_backlog_exclusion=1</code>; a diferencia de ellas, suma <b style="color:var(--ink);">todo el mes</b> en vez de solo el snapshot del día — por eso los valores de backlog no coinciden exactamente con la vista por agencia. Ordenado de mayor a menor backlog.</p>
+    <p class="explorer-note">Recuento de <code>peti_numero</code> por <code>vpi_cod_bucket</code>, acumulado de todos los snapshots disponibles (<span id="bucketPeriodNote2">–</span>). Al igual que las tarjetas por agencia, excluye filas con <code>filtro_backlog_exclusion=1</code>; a diferencia de ellas, suma <b style="color:var(--ink);">todo el período</b> en vez de solo el snapshot del día — por eso los valores de backlog no coinciden exactamente con la vista por agencia. Ordenado de mayor a menor backlog.</p>
   </section>
 
   <section class="method">
     <div>
       <h3>Fórmula</h3>
       <p class="formula">Backlog Instala := [En Proceso] / (([Cancelada] + [Terminada]) / 6)</p>
-      <p>En las tarjetas por agencia, los tres términos se toman del <b style="color:var(--ink);">mismo snapshot diario</b> (22-08-2026). Cada orden cerrada permanece visible en la bitácora un promedio de 6 a 8 días después de cerrarse (moda: 6 días), así que el volumen <code>Cancelada+Terminada</code> de un solo día ya equivale, por diseño del reporte, a ~6 días de cierres acumulados. Dividir por <code>6</code> lo convierte en una tasa diaria de cierre; el resultado son los días que tomaría vaciar el pendiente actual a ese ritmo. En el selector por bucket, los mismos términos se acumulan sobre todo agosto en vez de un solo día.</p>
+      <p>En las tarjetas por agencia, los tres términos se toman del <b style="color:var(--ink);">mismo snapshot diario</b> (<span id="methodDate">–</span>). Cada orden cerrada permanece visible en la bitácora un promedio de 6 a 8 días después de cerrarse (moda: 6 días), así que el volumen <code>Cancelada+Terminada</code> de un solo día ya equivale, por diseño del reporte, a ~6 días de cierres acumulados. Dividir por <code>6</code> lo convierte en una tasa diaria de cierre; el resultado son los días que tomaría vaciar el pendiente actual a ese ritmo. En el selector por bucket, los mismos términos se acumulan sobre todo el período cargado en vez de un solo día.</p>
     </div>
     <div>
       <h3>Fuente y alcance</h3>
-      <p><code>base-backlog-instalaciones_2026-08.csv</code> — bitácora diaria de órdenes de instalación, ELECNOR, zona Norte (agencias Viña del Mar, Valparaíso, San Antonio).</p>
-      <p>El archivo repite cada orden una fila por día que estuvo activa (18 snapshots, 01–22 ago 2026). Todas las cifras excluyen filas marcadas con <code>filtro_backlog_exclusion=1</code>. Las tarjetas por agencia usan únicamente el snapshot más reciente; sumar días distintos duplicaría órdenes y distorsionaría el ritmo de cierre.</p>
+      <p><code id="sourceFileName">–</code> — bitácora diaria de órdenes de instalación, ELECNOR, zona Norte (agencias Viña del Mar, Valparaíso, San Antonio).</p>
+      <p>El archivo repite cada orden una fila por día que estuvo activa (<span id="snapshotCount">–</span> snapshots, <span id="methodPeriod">–</span>). Todas las cifras excluyen filas marcadas con <code>filtro_backlog_exclusion=1</code>. Las tarjetas por agencia usan únicamente el snapshot más reciente; sumar días distintos duplicaría órdenes y distorsionaría el ritmo de cierre. Este dashboard se actualiza automáticamente todos los días — última actualización: <span id="lastUpdateStamp">–</span>.</p>
     </div>
   </section>
 
 </div>
 
 <script>
-(function(){
-  var bucketData = {
-    "VALPARAISO 1_MULT":      { c:1104, p:1811, t:1617 },
-    "VALPARAISO 2_MULT":      { c:406,  p:573,  t:597  },
-    "VALPARAISO 3_MULT":      { c:605,  p:1148, t:1736 },
-    "VALPARAISO 4_MULT":      { c:559,  p:1040, t:940  },
-    "VINA DEL MAR 1_MULT":    { c:1073, p:1476, t:1310 },
-    "VINA DEL MAR 2_MULT":    { c:1271, p:2308, t:2108 },
-    "VINA DEL MAR 3_MULT":    { c:1392, p:2336, t:2871 },
-    "VINA DEL MAR 4_MULT":    { c:911,  p:1622, t:1725 },
-    "VINA DEL MAR 5_MULT":    { c:538,  p:691,  t:879  },
-    "SAN ANTONIO 1_MULT":     { c:587,  p:1095, t:1438 },
-    "SAN ANTONIO 2_MULT":     { c:82,   p:162,  t:283  },
-    "SAN ANTONIO 3_MULT":     { c:334,  p:390,  t:424  },
-    "SAN BERNARDO 4_MULT":    { c:6,    p:2,    t:0    },
-    "PRIORITY_V_REGION_MULT": { c:135,  p:263,  t:229  }
-  };
+// Todo el contenido numerico de este dashboard viene de DASHBOARD_DATA.
+// El script actualizar_dashboard.ps1 reemplaza SOLO el contenido entre
+// los marcadores DATA_START y DATA_END cada vez que corre - el resto del
+// archivo (HTML, CSS, logica de render) no cambia dia a dia.
+var DASHBOARD_DATA = /*DATA_START*/{
+  "sourceFile": "base-backlog-instalaciones_2026-08.csv",
+  "snapshotDate": "22-08-2026",
+  "snapshotCount": 18,
+  "periodLabel": "01–22 ago 2026",
+  "generatedAt": "22-08-2026 00:00",
+  "agencies": [
+    { "name": "Viña del Mar",  "enProceso":517, "terminada":556, "cancelada":285, "agendaCon":461, "agendaVencida":172 },
+    { "name": "Valparaíso",   "enProceso":282, "terminada":296, "cancelada":153, "agendaCon":250, "agendaVencida":70  },
+    { "name": "San Antonio",  "enProceso":92,  "terminada":101, "cancelada":44,  "agendaCon":80,  "agendaVencida":18  }
+  ],
+  "buckets": {
+    "VALPARAISO 1_MULT":      { "c":1104, "p":1811, "t":1617 },
+    "VALPARAISO 2_MULT":      { "c":406,  "p":573,  "t":597  },
+    "VALPARAISO 3_MULT":      { "c":605,  "p":1148, "t":1736 },
+    "VALPARAISO 4_MULT":      { "c":559,  "p":1040, "t":940  },
+    "VINA DEL MAR 1_MULT":    { "c":1073, "p":1476, "t":1310 },
+    "VINA DEL MAR 2_MULT":    { "c":1271, "p":2308, "t":2108 },
+    "VINA DEL MAR 3_MULT":    { "c":1392, "p":2336, "t":2871 },
+    "VINA DEL MAR 4_MULT":    { "c":911,  "p":1622, "t":1725 },
+    "VINA DEL MAR 5_MULT":    { "c":538,  "p":691,  "t":879  },
+    "SAN ANTONIO 1_MULT":     { "c":587,  "p":1095, "t":1438 },
+    "SAN ANTONIO 2_MULT":     { "c":82,   "p":162,  "t":283  },
+    "SAN ANTONIO 3_MULT":     { "c":334,  "p":390,  "t":424  },
+    "SAN BERNARDO 4_MULT":    { "c":6,    "p":2,    "t":0    },
+    "PRIORITY_V_REGION_MULT": { "c":135,  "p":263,  "t":229  }
+  }
+}/*DATA_END*/;
 
+(function(){
+  var DATA = DASHBOARD_DATA;
   var fmtInt = new Intl.NumberFormat('es-CL');
-  var fmtDec = function(n){ return n.toLocaleString('es-CL', {minimumFractionDigits:2, maximumFractionDigits:2}); };
+  var fmtDec = function(n){
+    if(!isFinite(n)) return '—';
+    return n.toLocaleString('es-CL', {minimumFractionDigits:2, maximumFractionDigits:2});
+  };
 
   function calc(d){
     var total = d.c + d.p + d.t;
     var rate = (d.c + d.t) / 6;
-    var backlog = rate > 0 ? (d.p / rate) : 0;
+    var backlog = rate > 0 ? (d.p / rate) : (d.p > 0 ? Infinity : 0);
     return { total: total, backlog: backlog };
   }
   function severity(backlog){
@@ -879,9 +736,110 @@
     if(backlog < 4) return 'warn';
     return 'critical';
   }
+  function severityLabel(sev){
+    return { good:'BUENO', warn:'ATENCIÓN', critical:'CRÍTICO' }[sev];
+  }
+  function gaugePct(backlog){
+    var pct = (backlog / 5) * 100;
+    return Math.max(0, Math.min(100, pct));
+  }
+  function riskClass(pct){
+    return pct >= 35 ? 'critical' : 'warn';
+  }
+  function setText(id, text){
+    var el = document.getElementById(id);
+    if(el) el.textContent = text;
+  }
 
+  // ---- Masthead / methodology dates ----
+  setText('snapshotDate', DATA.snapshotDate);
+  setText('methodDate', DATA.snapshotDate);
+  setText('sourceFileName', DATA.sourceFile);
+  setText('snapshotCount', DATA.snapshotCount);
+  setText('methodPeriod', DATA.periodLabel);
+  setText('bucketPeriodNote', 'acumulado ' + DATA.periodLabel);
+  setText('bucketPeriodNote2', DATA.periodLabel);
+  setText('lastUpdateStamp', DATA.generatedAt);
+
+  // ---- Agencies: compute + sort best-to-worst ----
+  var agencies = DATA.agencies.map(function(a){
+    var r = calc({ c:a.cancelada, p:a.enProceso, t:a.terminada });
+    var pct = a.agendaCon > 0 ? (a.agendaVencida / a.agendaCon * 100) : 0;
+    return Object.assign({}, a, { backlog: r.backlog, agendaPct: pct });
+  }).sort(function(x,y){ return x.backlog - y.backlog; });
+
+  // ---- Zone summary ----
+  var zone = agencies.reduce(function(acc,a){
+    acc.enProceso += a.enProceso; acc.terminada += a.terminada; acc.cancelada += a.cancelada;
+    return acc;
+  }, { enProceso:0, terminada:0, cancelada:0 });
+  var zoneCalc = calc({ c:zone.cancelada, p:zone.enProceso, t:zone.terminada });
+
+  setText('sumProc', fmtInt.format(zone.enProceso));
+  setText('sumTerm', fmtInt.format(zone.terminada));
+  setText('sumCanc', fmtInt.format(zone.cancelada));
+  setText('sumBacklog', fmtDec(zoneCalc.backlog));
+
+  // ---- Agency cards ----
+  var cardsEl = document.getElementById('agencyCards');
+  cardsEl.innerHTML = agencies.map(function(a, i){
+    var sev = severity(a.backlog);
+    var marker = gaugePct(a.backlog);
+    var riskSev = riskClass(a.agendaPct);
+    return '' +
+    '<div class="card">' +
+      '<div class="card-top">' +
+        '<div>' +
+          '<p class="agency-name">' + a.name + '</p>' +
+          '<p class="agency-rank">Rank ' + (i+1) + ' de ' + agencies.length + '</p>' +
+        '</div>' +
+        '<span class="chip ' + sev + '">' + severityLabel(sev) + '</span>' +
+      '</div>' +
+      '<div class="hero-metric">' +
+        '<span class="num ' + sev + '">' + fmtDec(a.backlog) + '</span>' +
+        '<span class="label">días de<br>backlog</span>' +
+      '</div>' +
+      '<div class="gauge">' +
+        '<div class="gauge-track">' +
+          '<div class="gauge-zone" style="left:0%; width:40%; background:var(--good-soft);"></div>' +
+          '<div class="gauge-zone" style="left:40%; width:40%; background:var(--warn-soft);"></div>' +
+          '<div class="gauge-zone" style="left:80%; width:20%; background:var(--critical-soft);"></div>' +
+          '<div class="gauge-marker" style="left:' + marker.toFixed(1) + '%;"></div>' +
+        '</div>' +
+        '<div class="gauge-labels"><span>0</span><span>2</span><span>4</span><span>5</span></div>' +
+      '</div>' +
+      '<div class="breakdown">' +
+        '<div class="bd-item"><span class="bd-label">En proceso</span><span class="bd-value proc">' + fmtInt.format(a.enProceso) + '</span></div>' +
+        '<div class="bd-item"><span class="bd-label">Terminadas</span><span class="bd-value">' + fmtInt.format(a.terminada) + '</span></div>' +
+        '<div class="bd-item"><span class="bd-label">Canceladas</span><span class="bd-value">' + fmtInt.format(a.cancelada) + '</span></div>' +
+      '</div>' +
+      '<div class="risk-row">' +
+        '<span class="risk-label">Agenda vencida</span>' +
+        '<span class="risk-value ' + riskSev + '">' + fmtInt.format(a.agendaVencida) + ' / ' + fmtInt.format(a.agendaCon) + ' · ' + a.agendaPct.toFixed(1).replace('.',',') + '%</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  // ---- Comparison bars (same order as cards) ----
+  var barsEl = document.getElementById('compareBars');
+  var target = gaugePct(zoneCalc.backlog);
+  barsEl.innerHTML = agencies.map(function(a){
+    var sev = severity(a.backlog);
+    var width = gaugePct(a.backlog);
+    return '' +
+    '<div class="bar-row">' +
+      '<span class="bar-name">' + a.name + '</span>' +
+      '<div class="bar-track">' +
+        '<div class="bar-fill ' + (sev === 'good' ? 'good' : 'warn') + '" style="width:' + width.toFixed(1) + '%;"></div>' +
+        '<div class="bar-target" style="left:' + target.toFixed(1) + '%;" title="Promedio zona: ' + fmtDec(zoneCalc.backlog) + '"></div>' +
+      '</div>' +
+      '<span class="bar-value">' + fmtDec(a.backlog) + '</span>' +
+    '</div>';
+  }).join('');
+
+  // ---- Bucket explorer ----
   var select = document.getElementById('bucketSelect');
-  Object.keys(bucketData).forEach(function(name){
+  Object.keys(DATA.buckets).forEach(function(name){
     var opt = document.createElement('option');
     opt.value = name;
     opt.textContent = name;
@@ -892,30 +850,28 @@
   var allView = document.getElementById('explorerAll');
 
   function renderSingle(name){
-    var d = bucketData[name];
+    var d = DATA.buckets[name];
     if(!d) return;
     var r = calc(d);
-
-    document.getElementById('bkValue').textContent = fmtDec(r.backlog);
-    document.getElementById('bkProc').textContent = fmtInt.format(d.p);
-    document.getElementById('bkTerm').textContent = fmtInt.format(d.t);
-    document.getElementById('bkCanc').textContent = fmtInt.format(d.c);
-    document.getElementById('bkTotal').textContent = fmtInt.format(r.total);
-
+    setText('bkValue', fmtDec(r.backlog));
+    setText('bkProc', fmtInt.format(d.p));
+    setText('bkTerm', fmtInt.format(d.t));
+    setText('bkCanc', fmtInt.format(d.c));
+    setText('bkTotal', fmtInt.format(r.total));
     var heroNum = document.querySelector('.explorer-hero .num');
     heroNum.style.color = 'var(--' + severity(r.backlog) + ')';
   }
 
-  function renderAll(){
-    var names = Object.keys(bucketData).sort(function(a,b){
-      return calc(bucketData[b]).backlog - calc(bucketData[a]).backlog;
+  function renderAllBuckets(){
+    var names = Object.keys(DATA.buckets).sort(function(a,b){
+      return calc(DATA.buckets[b]).backlog - calc(DATA.buckets[a]).backlog;
     });
     var tbody = document.getElementById('bucketTableBody');
     tbody.innerHTML = '';
     var sumC=0, sumP=0, sumT=0;
 
     names.forEach(function(name){
-      var d = bucketData[name];
+      var d = DATA.buckets[name];
       var r = calc(d);
       sumC += d.c; sumP += d.p; sumT += d.t;
       var tr = document.createElement('tr');
@@ -930,11 +886,11 @@
     });
 
     var totalAll = calc({ c:sumC, p:sumP, t:sumT });
-    document.getElementById('bkAllCanc').textContent = fmtInt.format(sumC);
-    document.getElementById('bkAllProc').textContent = fmtInt.format(sumP);
-    document.getElementById('bkAllTerm').textContent = fmtInt.format(sumT);
-    document.getElementById('bkAllTotal').textContent = fmtInt.format(totalAll.total);
-    document.getElementById('bkAllBacklog').textContent = fmtDec(totalAll.backlog);
+    setText('bkAllCanc', fmtInt.format(sumC));
+    setText('bkAllProc', fmtInt.format(sumP));
+    setText('bkAllTerm', fmtInt.format(sumT));
+    setText('bkAllTotal', fmtInt.format(totalAll.total));
+    setText('bkAllBacklog', fmtDec(totalAll.backlog));
   }
 
   function onChange(){
@@ -951,7 +907,7 @@
 
   select.addEventListener('change', onChange);
 
-  renderAll();
+  renderAllBuckets();
   select.value = '__ALL__';
   onChange();
 })();
