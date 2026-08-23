@@ -351,6 +351,96 @@
   }
   .bar-value{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:0.9rem; text-align:right; font-variant-numeric:tabular-nums; }
 
+  /* ---------- Bucket explorer ---------- */
+  .explorer{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:1.6rem 1.7rem;
+    box-shadow:var(--shadow);
+    margin-bottom:2.75rem;
+  }
+  .explorer-controls{
+    display:flex;
+    flex-direction:column;
+    gap:0.4rem;
+    margin-bottom:1.3rem;
+  }
+  .explorer-controls label{
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--ink-faint);
+    font-weight:600;
+  }
+  .bucket-select{
+    appearance:none;
+    -webkit-appearance:none;
+    width:100%;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:1rem;
+    font-weight:600;
+    color:var(--ink);
+    background:var(--surface-2) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="9" viewBox="0 0 14 9"><path d="M1 1l6 6 6-6" stroke="%2355647F" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat right 1rem center;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:0.85rem 2.6rem 0.85rem 1rem;
+    cursor:pointer;
+    min-height:48px;
+  }
+  .bucket-select:focus{ outline:2px solid var(--brand-blue); outline-offset:1px; }
+
+  .explorer-result{
+    display:grid;
+    grid-template-columns:1.1fr 2fr;
+    gap:1.5rem;
+    align-items:center;
+  }
+  .explorer-hero{
+    display:flex;
+    flex-direction:column;
+    gap:0.35rem;
+    padding:1.1rem 1.3rem;
+    background:var(--accent-soft);
+    border-radius:10px;
+  }
+  .explorer-hero .stat-label{ color:var(--accent-strong); opacity:0.9; }
+  .explorer-hero .num{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:700;
+    font-size:2.6rem;
+    line-height:1;
+    font-variant-numeric:tabular-nums;
+    color:var(--accent-strong);
+  }
+  .explorer-hero .num .unit{ font-size:1rem; font-weight:500; margin-left:0.25rem; color:var(--ink-muted); }
+  .explorer-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:0.7rem;
+  }
+  .explorer-item{
+    background:var(--surface-2);
+    border-radius:10px;
+    padding:0.8rem 0.9rem;
+    display:flex;
+    flex-direction:column;
+    gap:0.2rem;
+  }
+  .explorer-item .bd-value{ font-size:1.25rem; }
+  .explorer-item.total{ background:var(--brand-blue-soft); }
+  .explorer-note{
+    margin-top:1.1rem;
+    font-size:0.78rem;
+    color:var(--ink-faint);
+    line-height:1.55;
+  }
+
+  @media (max-width: 700px){
+    .explorer-result{ grid-template-columns:1fr; }
+    .explorer-grid{ grid-template-columns:repeat(2, 1fr); }
+  }
+
   /* ---------- Methodology ---------- */
   .method{
     border-top:1px solid var(--border);
@@ -621,6 +711,45 @@
     </div>
   </section>
 
+  <section class="explorer">
+    <div class="section-head">
+      <h2 class="section-title">Backlog por bucket</h2>
+      <span class="section-note">acumulado agosto</span>
+    </div>
+
+    <div class="explorer-controls">
+      <label for="bucketSelect">Selecciona un bucket (vpi_cod_bucket)</label>
+      <select id="bucketSelect" class="bucket-select"></select>
+    </div>
+
+    <div class="explorer-result">
+      <div class="explorer-hero">
+        <span class="stat-label">Backlog Instala</span>
+        <span class="num"><span id="bkValue">–</span><span class="unit">días</span></span>
+      </div>
+      <div class="explorer-grid">
+        <div class="explorer-item">
+          <span class="bd-label">En proceso</span>
+          <span class="bd-value proc" id="bkProc">–</span>
+        </div>
+        <div class="explorer-item">
+          <span class="bd-label">Terminadas</span>
+          <span class="bd-value" id="bkTerm">–</span>
+        </div>
+        <div class="explorer-item">
+          <span class="bd-label">Canceladas</span>
+          <span class="bd-value" id="bkCanc">–</span>
+        </div>
+        <div class="explorer-item total">
+          <span class="bd-label">Total general</span>
+          <span class="bd-value" id="bkTotal">–</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="explorer-note">Recuento de <code>peti_numero</code> por <code>vpi_cod_bucket</code>, acumulado de todos los snapshots de agosto (01–22 ago), excluyendo filas marcadas con <code>filtro_backlog_exclusion=1</code>. A diferencia de las tarjetas por agencia (que usan solo el snapshot del día), este corte replica el pivote de referencia usado para revisar carteras individuales.</p>
+  </section>
+
   <section class="method">
     <div>
       <h3>Fórmula</h3>
@@ -635,3 +764,60 @@
   </section>
 
 </div>
+
+<script>
+(function(){
+  var bucketData = {
+    "VALPARAISO 1_MULT":      { c:1104, p:1811, t:1617 },
+    "VALPARAISO 2_MULT":      { c:406,  p:573,  t:597  },
+    "VALPARAISO 3_MULT":      { c:605,  p:1148, t:1736 },
+    "VALPARAISO 4_MULT":      { c:559,  p:1040, t:940  },
+    "VINA DEL MAR 1_MULT":    { c:1073, p:1476, t:1310 },
+    "VINA DEL MAR 2_MULT":    { c:1271, p:2308, t:2108 },
+    "VINA DEL MAR 3_MULT":    { c:1392, p:2336, t:2871 },
+    "VINA DEL MAR 4_MULT":    { c:911,  p:1622, t:1725 },
+    "VINA DEL MAR 5_MULT":    { c:538,  p:691,  t:879  },
+    "SAN ANTONIO 1_MULT":     { c:587,  p:1095, t:1438 },
+    "SAN ANTONIO 2_MULT":     { c:82,   p:162,  t:283  },
+    "SAN ANTONIO 3_MULT":     { c:334,  p:390,  t:424  },
+    "SAN BERNARDO 4_MULT":    { c:6,    p:2,    t:0    },
+    "PRIORITY_V_REGION_MULT": { c:135,  p:263,  t:229  }
+  };
+
+  var fmtInt = new Intl.NumberFormat('es-CL');
+
+  var select = document.getElementById('bucketSelect');
+  Object.keys(bucketData).forEach(function(name){
+    var opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    select.appendChild(opt);
+  });
+
+  function render(name){
+    var d = bucketData[name];
+    if(!d) return;
+    var total = d.c + d.p + d.t;
+    var rate = (d.c + d.t) / 6;
+    var backlog = rate > 0 ? (d.p / rate) : 0;
+
+    document.getElementById('bkValue').textContent = backlog.toLocaleString('es-CL', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('bkProc').textContent = fmtInt.format(d.p);
+    document.getElementById('bkTerm').textContent = fmtInt.format(d.t);
+    document.getElementById('bkCanc').textContent = fmtInt.format(d.c);
+    document.getElementById('bkTotal').textContent = fmtInt.format(total);
+
+    var heroNum = document.querySelector('.explorer-hero .num');
+    heroNum.classList.remove('warn','good','critical');
+    if(backlog < 2){ heroNum.style.color = 'var(--good)'; }
+    else if(backlog < 4){ heroNum.style.color = 'var(--warn)'; }
+    else { heroNum.style.color = 'var(--critical)'; }
+  }
+
+  select.addEventListener('change', function(){ render(this.value); });
+
+  var initial = "VINA DEL MAR 3_MULT";
+  select.value = initial;
+  render(initial);
+})();
+</script>
