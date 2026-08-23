@@ -62,19 +62,26 @@ try {
         $canc = ($sub | Where-Object { $_.espe_nombre -eq 'Cancelada' }).Count
         $con = 0
         $venc = 0
+        $sinAtender1Dia = 0
         foreach ($r in $proc) {
             if ($r.dia_especifico -ne '') {
                 $con++
                 $f = [datetime]::ParseExact($r.dia_especifico, 'dd-MM-yyyy', $null)
                 if ($f -lt $maxDate) { $venc++ }
             }
+            if ($r.peti_fecha_ingreso -ne '') {
+                $fi = [datetime]::ParseExact($r.peti_fecha_ingreso, 'dd-MM-yyyy', $null)
+                $diasAbierta = (New-TimeSpan -Start $fi -End $maxDate).Days
+                if ($diasAbierta -gt 1) { $sinAtender1Dia++ }
+            }
         }
         [PSCustomObject]@{
-            enProceso     = $proc.Count
-            terminada     = $term
-            cancelada     = $canc
-            agendaCon     = $con
-            agendaVencida = $venc
+            enProceso      = $proc.Count
+            terminada      = $term
+            cancelada      = $canc
+            agendaCon      = $con
+            agendaVencida  = $venc
+            sinAtender1Dia = $sinAtender1Dia
         }
     }
 
@@ -88,14 +95,15 @@ try {
     foreach ($displayName in $agencyMap.Keys) {
         $s = Get-AgencyStats -AgenciaRaw $agencyMap[$displayName]
         $agencies += [PSCustomObject]@{
-            name          = $displayName
-            enProceso     = $s.enProceso
-            terminada     = $s.terminada
-            cancelada     = $s.cancelada
-            agendaCon     = $s.agendaCon
-            agendaVencida = $s.agendaVencida
+            name           = $displayName
+            enProceso      = $s.enProceso
+            terminada      = $s.terminada
+            cancelada      = $s.cancelada
+            agendaCon      = $s.agendaCon
+            agendaVencida  = $s.agendaVencida
+            sinAtender1Dia = $s.sinAtender1Dia
         }
-        Write-Log ("Agencia {0}: EnProceso={1} Terminada={2} Cancelada={3} AgendaVencida={4}/{5}" -f $displayName, $s.enProceso, $s.terminada, $s.cancelada, $s.agendaVencida, $s.agendaCon)
+        Write-Log ("Agencia {0}: EnProceso={1} Terminada={2} Cancelada={3} AgendaVencida={4}/{5} SinAtender1Dia={6}" -f $displayName, $s.enProceso, $s.terminada, $s.cancelada, $s.agendaVencida, $s.agendaCon, $s.sinAtender1Dia)
     }
 
     # 4. Buckets: todo el archivo cargado (todas las fechas), mismo filtro
