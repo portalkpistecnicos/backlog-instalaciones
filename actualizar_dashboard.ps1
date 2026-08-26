@@ -118,15 +118,28 @@ try {
     }
     Write-Log "Buckets encontrados: $($buckets.Count)"
 
+    # 4b. Consolidado por agencia: mismo acumulado del mes (todas las fechas), agrupado por agen_descripcion
+    $allFilteredAllAgencies = $data | Where-Object { $_.filtro_backlog_exclusion -eq '0' }
+    $agencyConsolidated = @()
+    foreach ($displayName in $agencyMap.Keys) {
+        $sub = $allFilteredAllAgencies | Where-Object { $_.agen_descripcion -eq $agencyMap[$displayName] }
+        $c = ($sub | Where-Object { $_.espe_nombre -eq 'Cancelada' }).Count
+        $p = ($sub | Where-Object { $_.espe_nombre -eq 'En Proceso' }).Count
+        $t = ($sub | Where-Object { $_.espe_nombre -eq 'Terminada' }).Count
+        $agencyConsolidated += [PSCustomObject]@{ name = $displayName; c = $c; p = $p; t = $t }
+        Write-Log ("Consolidado mes {0}: Cancelada={1} EnProceso={2} Terminada={3}" -f $displayName, $c, $p, $t)
+    }
+
     # 5. Armar el bloque de datos y convertirlo a JSON
     $dashboardData = [ordered]@{
-        sourceFile    = $csvFile.Name
-        snapshotDate  = $maxDateStr
-        snapshotCount = $snapshotCount
-        periodLabel   = "$($minDate.ToString('dd-MM')) al $maxDateStr"
-        generatedAt   = (Get-Date -Format 'dd-MM-yyyy HH:mm')
-        agencies      = $agencies
-        buckets       = $buckets
+        sourceFile          = $csvFile.Name
+        snapshotDate        = $maxDateStr
+        snapshotCount       = $snapshotCount
+        periodLabel         = "$($minDate.ToString('dd-MM')) al $maxDateStr"
+        generatedAt         = (Get-Date -Format 'dd-MM-yyyy HH:mm')
+        agencies            = $agencies
+        agencyConsolidated  = $agencyConsolidated
+        buckets             = $buckets
     }
     $json = $dashboardData | ConvertTo-Json -Depth 6 -Compress
     Write-Log "JSON generado ($($json.Length) caracteres)"
