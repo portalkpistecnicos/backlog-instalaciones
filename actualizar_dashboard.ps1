@@ -43,16 +43,53 @@ try {
     $data = Import-Csv -Path $csvFile.FullName -Delimiter ';' -Encoding UTF8
     Write-Log "Filas leidas: $($data.Count)"
 
+    # 1b. El formato de fecha con guion cambia entre archivos mensuales (se ha visto
+    # dd-MM-yyyy y tambien MM-dd-yyyy). Se detecta comparando contra el año-mes que
+    # indica el propio nombre del archivo (ej. "..._2026-09.csv" -> mes=09).
+    $fileNameMatch = [regex]::Match($csvFile.Name, '_(\d{4})-(\d{2})\.csv$')
+    $expectedMonth = if ($fileNameMatch.Success) { [int]$fileNameMatch.Groups[2].Value } else { $null }
+
+    $sampleDates = $data | Select-Object -First 300 -ExpandProperty partition_date |
+        Where-Object { $_ -match '^\d{2}-\d{2}-\d{4}$' } | Select-Object -Unique
+    $DashFormat = 'dd-MM-yyyy'
+    if ($expectedMonth -and $sampleDates) {
+        $ddmmOk = $true; $mmddOk = $true
+        foreach ($s in $sampleDates) {
+            $dt1 = [datetime]::MinValue
+            if (-not [datetime]::TryParseExact($s, 'dd-MM-yyyy', $Inv, [System.Globalization.DateTimeStyles]::None, [ref]$dt1) -or $dt1.Month -ne $expectedMonth) { $ddmmOk = $false }
+            $dt2 = [datetime]::MinValue
+            if (-not [datetime]::TryParseExact($s, 'MM-dd-yyyy', $Inv, [System.Globalization.DateTimeStyles]::None, [ref]$dt2) -or $dt2.Month -ne $expectedMonth) { $mmddOk = $false }
+        }
+        if ($mmddOk -and -not $ddmmOk) { $DashFormat = 'MM-dd-yyyy' }
+        elseif ($ddmmOk -and -not $mmddOk) { $DashFormat = 'dd-MM-yyyy' }
+        else { Write-Log "AVISO: no se pudo determinar sin ambiguedad el formato de fecha; se usa $DashFormat por defecto" }
+    }
+    Write-Log "Formato de fecha (guion) detectado para este archivo: $DashFormat"
+
+    function Parse-FlexibleDate {
+        param([string]$s)
+        $dt = [datetime]::MinValue
+        if ($s -match '/') {
+            if ([datetime]::TryParseExact($s, 'M/d/yyyy', $Inv, [System.Globalization.DateTimeStyles]::None, [ref]$dt)) { return $dt }
+        } else {
+            if ([datetime]::TryParseExact($s, $DashFormat, $Inv, [System.Globalization.DateTimeStyles]::None, [ref]$dt)) { return $dt }
+            $otherDash = if ($DashFormat -eq 'dd-MM-yyyy') { 'MM-dd-yyyy' } else { 'dd-MM-yyyy' }
+            if ([datetime]::TryParseExact($s, $otherDash, $Inv, [System.Globalization.DateTimeStyles]::None, [ref]$dt)) { return $dt }
+        }
+        throw "No se pudo interpretar la fecha '$s'"
+    }
+
     # 2. Determinar snapshot mas reciente y rango de fechas del archivo
-    $allDates = $data | ForEach-Object { [datetime]::ParseExact($_.partition_date, 'dd-MM-yyyy', $null) }
+    $allDates = $data | ForEach-Object { Parse-FlexibleDate $_.partition_date }
     $maxDate = ($allDates | Measure-Object -Maximum).Maximum
     $minDate = ($allDates | Measure-Object -Minimum).Minimum
     $maxDateStr = $maxDate.ToString('dd-MM-yyyy')
+    $maxDateRaw = ($data | Where-Object { (Parse-FlexibleDate $_.partition_date) -eq $maxDate } | Select-Object -First 1 -ExpandProperty partition_date)
     $snapshotCount = ($data | Select-Object -ExpandProperty partition_date -Unique).Count
     Write-Log "Snapshot mas reciente: $maxDateStr | Rango: $($minDate.ToString('dd-MM-yyyy')) a $maxDateStr | Snapshots: $snapshotCount"
 
     # 3. Snapshot de hoy, excluyendo filas marcadas para exclusion de backlog
-    $hoy = $data | Where-Object { $_.partition_date -eq $maxDateStr -and $_.filtro_backlog_exclusion -eq '0' }
+    $hoy = $data | Where-Object { $_.partition_date -eq $maxDateRaw -and $_.filtro_backlog_exclusion -eq '0' }
 
     function Get-AgencyStats {
         param([string]$AgenciaRaw)
@@ -66,11 +103,11 @@ try {
         foreach ($r in $proc) {
             if ($r.dia_especifico -ne '') {
                 $con++
-                $f = [datetime]::ParseExact($r.dia_especifico, 'dd-MM-yyyy', $null)
+                $f = Parse-FlexibleDate $r.dia_especifico
                 if ($f -lt $maxDate) { $venc++ }
             }
             if ($r.peti_fecha_ingreso -ne '') {
-                $fi = [datetime]::ParseExact($r.peti_fecha_ingreso, 'dd-MM-yyyy', $null)
+                $fi = Parse-FlexibleDate $r.peti_fecha_ingreso
                 $diasAbierta = (New-TimeSpan -Start $fi -End $maxDate).Days
                 if ($diasAbierta -gt 1) { $sinAtender1Dia++ }
             }
