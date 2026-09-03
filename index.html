@@ -206,6 +206,13 @@
   .stat.hero{ background:var(--accent-soft); }
   .stat.hero .stat-value{ color:var(--accent-strong); }
   .stat.hero .stat-label{ color:var(--accent-strong); opacity:0.85; }
+  .stat-goal{
+    margin:0.35rem 0 0;
+    font-size:0.75rem;
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--accent-strong);
+    opacity:0.75;
+  }
 
   /* ---------- Section heading ---------- */
   .section-head{
@@ -300,6 +307,10 @@
     position:absolute; top:-3px; width:3px; height:14px; border-radius:2px;
     background:var(--ink); transform:translateX(-50%);
   }
+  .gauge-goal{
+    position:absolute; top:-6px; bottom:-6px; width:0;
+    border-left:2px dashed var(--good);
+  }
   .gauge-labels{
     display:flex; justify-content:space-between;
     font-family:'IBM Plex Mono', monospace;
@@ -349,7 +360,20 @@
   .bar-target{
     position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--brand-orange);
   }
+  .bar-goal{
+    position:absolute; top:-4px; bottom:-4px; width:0;
+    border-left:2px dashed var(--good);
+  }
   .bar-value{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:0.9rem; text-align:right; font-variant-numeric:tabular-nums; }
+  .legend{
+    display:flex; flex-wrap:wrap; gap:1.1rem;
+    margin-top:1.1rem; padding-top:0.9rem;
+    border-top:1px solid var(--border);
+    font-size:0.78rem; color:var(--ink-muted);
+  }
+  .legend-item{ display:flex; align-items:center; gap:0.4rem; }
+  .legend-swatch{ width:14px; height:0; border-top:2px dashed var(--good); }
+  .legend-swatch.avg{ border-top-style:solid; border-top-color:var(--brand-orange); }
 
   /* ---------- Bucket explorer ---------- */
   .explorer{
@@ -592,6 +616,7 @@
     <div class="stat hero">
       <p class="stat-label">Backlog Instala · Zona Norte</p>
       <p class="stat-value"><span id="sumBacklog">–</span><span class="unit">días</span></p>
+      <p class="stat-goal" id="sumGoal">–</p>
     </div>
   </section>
 
@@ -741,6 +766,7 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
 
 (function(){
   var DATA = DASHBOARD_DATA;
+  var META_BACKLOG = 1.5;
   var fmtInt = new Intl.NumberFormat('es-CL');
   var fmtDec = function(n){
     if(!isFinite(n)) return '—';
@@ -805,12 +831,15 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
   setText('sumCanc', fmtInt.format(zone.cancelada));
   setText('sumSinAtender', fmtInt.format(zone.sinAtender1Dia) + ' (' + zoneSinAtenderPct.toFixed(1).replace('.',',') + '%)');
   setText('sumBacklog', fmtDec(zoneCalc.backlog));
+  var vsGoal = zoneCalc.backlog - META_BACKLOG;
+  setText('sumGoal', 'Meta: ' + fmtDec(META_BACKLOG) + ' días (' + (vsGoal >= 0 ? '+' : '') + fmtDec(vsGoal) + ')');
 
   // ---- Agency cards ----
   var cardsEl = document.getElementById('agencyCards');
   cardsEl.innerHTML = agencies.map(function(a, i){
     var sev = severity(a.backlog);
     var marker = gaugePct(a.backlog);
+    var goalPct = gaugePct(META_BACKLOG);
     var riskSev = riskClass(a.agendaPct);
     return '' +
     '<div class="card">' +
@@ -830,6 +859,7 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
           '<div class="gauge-zone" style="left:0%; width:40%; background:var(--good-soft);"></div>' +
           '<div class="gauge-zone" style="left:40%; width:40%; background:var(--warn-soft);"></div>' +
           '<div class="gauge-zone" style="left:80%; width:20%; background:var(--critical-soft);"></div>' +
+          '<div class="gauge-goal" style="left:' + goalPct.toFixed(1) + '%;" title="Meta: ' + fmtDec(META_BACKLOG) + ' días"></div>' +
           '<div class="gauge-marker" style="left:' + marker.toFixed(1) + '%;"></div>' +
         '</div>' +
         '<div class="gauge-labels"><span>0</span><span>2</span><span>4</span><span>5</span></div>' +
@@ -853,6 +883,7 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
   // ---- Comparison bars (same order as cards) ----
   var barsEl = document.getElementById('compareBars');
   var target = gaugePct(zoneCalc.backlog);
+  var goalPctBars = gaugePct(META_BACKLOG);
   barsEl.innerHTML = agencies.map(function(a){
     var sev = severity(a.backlog);
     var width = gaugePct(a.backlog);
@@ -863,11 +894,16 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
       '<span class="bar-name">' + a.name + '</span>' +
       '<div class="bar-track">' +
         '<div class="bar-fill ' + (sev === 'good' ? 'good' : 'warn') + '" style="width:' + width.toFixed(1) + '%;"></div>' +
+        '<div class="bar-goal" style="left:' + goalPctBars.toFixed(1) + '%;" title="Meta: ' + fmtDec(META_BACKLOG) + ' días"></div>' +
         '<div class="bar-target" style="left:' + target.toFixed(1) + '%;" title="Promedio zona: ' + fmtDec(zoneCalc.backlog) + '"></div>' +
       '</div>' +
       '<span class="bar-value">' + fmtDec(a.backlog) + '</span>' +
     '</div>';
-  }).join('');
+  }).join('') +
+  '<div class="legend">' +
+    '<span class="legend-item"><span class="legend-swatch"></span>Meta (' + fmtDec(META_BACKLOG) + ' días)</span>' +
+    '<span class="legend-item"><span class="legend-swatch avg"></span>Promedio zona (' + fmtDec(zoneCalc.backlog) + ' días)</span>' +
+  '</div>';
 
   // ---- Bucket explorer ----
   var select = document.getElementById('bucketSelect');
