@@ -536,6 +536,13 @@
     color:var(--ink);
   }
 
+  .page-footer{
+    text-align:center;
+    padding:1.5rem 0 2.5rem;
+    font-size:0.78rem;
+    color:var(--ink-faint);
+  }
+
   @media (max-width: 860px){
     .cards{ grid-template-columns:1fr; }
     .summary{ grid-template-columns:repeat(2,1fr); }
@@ -720,6 +727,8 @@
       <p>El archivo repite cada orden una fila por día que estuvo activa (<span id="snapshotCount">–</span> snapshots, <span id="methodPeriod">–</span>). Todas las cifras excluyen filas marcadas con <code>filtro_backlog_exclusion=1</code>. Las tarjetas por agencia usan únicamente el snapshot más reciente; sumar días distintos duplicaría órdenes y distorsionaría el ritmo de cierre. Este dashboard se actualiza automáticamente todos los días — última actualización: <span id="lastUpdateStamp">–</span>.</p>
     </div>
   </section>
+
+  <footer class="page-footer">Diseñado por Xas</footer>
 
 </div>
 
