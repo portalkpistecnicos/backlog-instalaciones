@@ -143,6 +143,17 @@ try {
         Write-Log ("Agencia {0}: EnProceso={1} Terminada={2} Cancelada={3} AgendaVencida={4}/{5} SinAtender1Dia={6}" -f $displayName, $s.enProceso, $s.terminada, $s.cancelada, $s.agendaVencida, $s.agendaCon, $s.sinAtender1Dia)
     }
 
+    # 3b. Chequeo de cordura: si el snapshot del dia da 0 en las tres agencias es casi
+    # seguro una lectura parcial del CSV fuente (ej. el sistema origen lo estaba
+    # reescribiendo en ese momento), no un dia real sin actividad. Se aborta sin
+    # guardar historico ni hacer push, para no ensuciar los datos.
+    $totalHoy = ($agencies | Measure-Object -Property enProceso -Sum).Sum +
+                ($agencies | Measure-Object -Property terminada -Sum).Sum +
+                ($agencies | Measure-Object -Property cancelada -Sum).Sum
+    if ($totalHoy -eq 0) {
+        throw "Snapshot del $maxDateStr da 0 actividades en las 3 agencias - probable lectura parcial del CSV fuente. Se aborta sin guardar ni publicar."
+    }
+
     # 4. Buckets: todo el archivo cargado (todas las fechas), mismo filtro
     $allFiltered = $data | Where-Object { $_.filtro_backlog_exclusion -eq '0' -and $_.vpi_cod_bucket -ne '' }
     $bucketGroups = $allFiltered | Group-Object vpi_cod_bucket
