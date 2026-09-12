@@ -166,6 +166,81 @@
   }
   .brandbar-meta .date{ color:var(--brand-blue); font-weight:700; font-size:0.92rem; }
 
+  /* ---------- Toolbar: theme toggle + downloads ---------- */
+  .brandbar-actions{
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .theme-toggle{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:40px;
+    height:40px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--surface-2);
+    color:var(--brand-blue);
+    cursor:pointer;
+    flex-shrink:0;
+    transition:background 0.15s, border-color 0.15s;
+  }
+  .theme-toggle:hover{ border-color:var(--brand-blue); }
+  .theme-toggle svg{ width:19px; height:19px; display:block; }
+  .theme-toggle .icon-sun{ display:none; }
+  .theme-toggle .icon-moon{ display:block; }
+  :root[data-theme="dark"] .theme-toggle .icon-sun{ display:block; }
+  :root[data-theme="dark"] .theme-toggle .icon-moon{ display:none; }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .theme-toggle .icon-sun{ display:block; }
+    :root:not([data-theme="light"]) .theme-toggle .icon-moon{ display:none; }
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:0.45rem;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.82rem;
+    font-weight:600;
+    padding:0.6rem 1rem;
+    border-radius:10px;
+    border:1px solid transparent;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:filter 0.15s, background 0.15s;
+  }
+  .btn svg{ width:16px; height:16px; flex-shrink:0; }
+  .btn-outline{
+    background:var(--surface-2);
+    border-color:var(--border);
+    color:var(--ink);
+  }
+  .btn-outline:hover{ border-color:var(--brand-blue); color:var(--brand-blue); }
+  .btn-solid{
+    background:var(--brand-orange);
+    color:#fff;
+  }
+  .btn-solid:hover{ filter:brightness(1.06); }
+  .btn:disabled{ opacity:0.55; cursor:progress; filter:none; }
+
+  @media (max-width: 640px){
+    .brandbar-actions{ flex-wrap:wrap; }
+    .btn span.btn-label{ display:none; }
+    .btn{ padding:0.6rem 0.7rem; }
+  }
+
+  /* ---------- Print ---------- */
+  @media print{
+    .no-print{ display:none !important; }
+    body{ background:#fff; }
+    .brandbar{ box-shadow:none; border-bottom-color:#F47C02; }
+    .card, .compare, .explorer, .summary{ box-shadow:none; break-inside:avoid; }
+    .wrap{ max-width:100%; }
+    a[href]:after{ content:""; }
+  }
+
   /* ---------- Summary strip ---------- */
   .summary{
     display:grid;
@@ -589,6 +664,21 @@
         <p>Informe gerencial · <b>Zona Norte</b> · Viña del Mar, Valparaíso, San Antonio</p>
       </div>
     </div>
+    <div class="brandbar-actions no-print">
+      <button type="button" class="theme-toggle" id="themeToggle" title="Cambiar tema claro / oscuro" aria-label="Cambiar tema claro / oscuro">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5A8.5 8.5 0 1 1 11.5 3 6.5 6.5 0 0 0 21 12.5Z"/></svg>
+      </button>
+      <button type="button" class="btn btn-outline" id="btnPdf" title="Descargar PDF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        <span class="btn-label">PDF</span>
+      </button>
+      <button type="button" class="btn btn-solid" id="btnExcel" title="Descargar Excel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9.5 12.5l5 5M14.5 12.5l-5 5"/></svg>
+        <span class="btn-label">Excel</span>
+      </button>
+    </div>
+
     <div class="brandbar-meta">
       <div>Snapshot más reciente</div>
       <div class="date" id="snapshotDate">–</div>
@@ -943,5 +1033,162 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
   select.addEventListener('change', onChange);
 
   renderConsolidated();
+
+  // ---- Theme toggle (claro / oscuro, persistido en localStorage) ----
+  (function(){
+    var root = document.documentElement;
+    var toggle = document.getElementById('themeToggle');
+    var KEY = 'bi_theme';
+    var saved = null;
+    try { saved = localStorage.getItem(KEY); } catch(e){}
+    if (saved === 'light' || saved === 'dark') { root.setAttribute('data-theme', saved); }
+
+    function current(){
+      var attr = root.getAttribute('data-theme');
+      if (attr === 'light' || attr === 'dark') return attr;
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    toggle.addEventListener('click', function(){
+      var next = current() === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem(KEY, next); } catch(e){}
+    });
+  })();
+
+  // ---- Descargar PDF (impresion del navegador, forzando tema claro) ----
+  (function(){
+    var root = document.documentElement;
+    var btn = document.getElementById('btnPdf');
+    var prevTheme = null;
+    window.addEventListener('beforeprint', function(){
+      prevTheme = root.getAttribute('data-theme');
+      root.setAttribute('data-theme', 'light');
+    });
+    window.addEventListener('afterprint', function(){
+      if (prevTheme === null) { root.removeAttribute('data-theme'); }
+      else { root.setAttribute('data-theme', prevTheme); }
+    });
+    btn.addEventListener('click', function(){ window.print(); });
+  })();
+
+  // ---- Descargar Excel (ExcelJS, cargado bajo demanda) ----
+  (function(){
+    var btn = document.getElementById('btnExcel');
+    var CDN = 'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
+    var loadPromise = null;
+
+    function loadExcelJS(){
+      if (window.ExcelJS) return Promise.resolve();
+      if (loadPromise) return loadPromise;
+      loadPromise = new Promise(function(resolve, reject){
+        var s = document.createElement('script');
+        s.src = CDN;
+        s.onload = function(){ resolve(); };
+        s.onerror = function(){ reject(new Error('No se pudo cargar ExcelJS')); };
+        document.head.appendChild(s);
+      });
+      return loadPromise;
+    }
+
+    function headerRow(ws, values){
+      var row = ws.addRow(values);
+      row.eachCell(function(cell){
+        cell.font = { bold:true, color:{argb:'FFFFFFFF'} };
+        cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FF003D86'} };
+        cell.alignment = { vertical:'middle' };
+      });
+      return row;
+    }
+
+    function autoWidth(ws){
+      ws.columns.forEach(function(col){
+        var max = 10;
+        col.eachCell({ includeEmpty:true }, function(cell){
+          var len = (cell.value === null || cell.value === undefined) ? 0 : String(cell.value).length;
+          if (len > max) max = len;
+        });
+        col.width = Math.min(max + 2, 42);
+      });
+    }
+
+    function buildWorkbook(){
+      var wb = new ExcelJS.Workbook();
+      wb.creator = 'Backlog Instalaciones';
+      wb.created = new Date();
+
+      // Resumen
+      var wsR = wb.addWorksheet('Resumen');
+      wsR.addRow(['Backlog Instalaciones - Zona Norte']).font = { bold:true, size:14 };
+      wsR.addRow(['Snapshot más reciente', DATA.snapshotDate]);
+      wsR.addRow(['Actualizado', DATA.generatedAt]);
+      wsR.addRow([]);
+      headerRow(wsR, ['Métrica','Valor']);
+      wsR.addRow(['En proceso (hoy)', zone.enProceso]);
+      wsR.addRow(['Terminadas (hoy)', zone.terminada]);
+      wsR.addRow(['Canceladas (hoy)', zone.cancelada]);
+      wsR.addRow(['No atendidas (>1 día)', zone.sinAtender1Dia]);
+      wsR.addRow(['Backlog Instala Zona Norte (días)', Number(zoneCalc.backlog.toFixed(2))]);
+      wsR.addRow(['Meta (días)', META_BACKLOG]);
+      autoWidth(wsR);
+
+      // Por Agencia
+      var wsA = wb.addWorksheet('Por Agencia');
+      var hA = headerRow(wsA, ['Agencia','En Proceso','Terminada','Cancelada','Backlog (días)','Agenda Con','Agenda Vencida','% Agenda Vencida','No Atendidas >1d','% No Atendidas']);
+      agencies.forEach(function(a){
+        wsA.addRow([a.name, a.enProceso, a.terminada, a.cancelada, Number(a.backlog.toFixed(2)), a.agendaCon, a.agendaVencida, Number(a.agendaPct.toFixed(1)), a.sinAtender1Dia, Number(a.sinAtenderPct.toFixed(1))]);
+      });
+      wsA.autoFilter = { from:'A1', to: String.fromCharCode(64 + hA.cellCount) + '1' };
+      autoWidth(wsA);
+
+      // Consolidado por Agencia
+      var wsC = wb.addWorksheet('Consolidado Agencia');
+      var hC = headerRow(wsC, ['Agencia','Cancelada','En Proceso','Terminada','Total General','Backlog (días)']);
+      (DATA.agencyConsolidated || []).forEach(function(a){
+        var r = calc(a);
+        wsC.addRow([a.name, a.c, a.p, a.t, r.total, Number(r.backlog.toFixed(2))]);
+      });
+      wsC.autoFilter = { from:'A1', to: String.fromCharCode(64 + hC.cellCount) + '1' };
+      autoWidth(wsC);
+
+      // Por Bucket
+      var wsB = wb.addWorksheet('Por Bucket');
+      var hB = headerRow(wsB, ['Bucket','Cancelada','En Proceso','Terminada','Total General','Backlog (días)']);
+      Object.keys(DATA.buckets).forEach(function(name){
+        var d = DATA.buckets[name];
+        var r = calc(d);
+        wsB.addRow([name, d.c, d.p, d.t, r.total, Number(r.backlog.toFixed(2))]);
+      });
+      wsB.autoFilter = { from:'A1', to: String.fromCharCode(64 + hB.cellCount) + '1' };
+      autoWidth(wsB);
+
+      return wb;
+    }
+
+    btn.addEventListener('click', function(){
+      var original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="btn-label">Generando…</span>';
+      loadExcelJS().then(function(){
+        var wb = buildWorkbook();
+        return wb.xlsx.writeBuffer();
+      }).then(function(buffer){
+        var blob = new Blob([buffer], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'backlog-instalaciones-' + DATA.snapshotDate + '.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+      }).catch(function(err){
+        console.error(err);
+        alert('No se pudo generar el Excel: ' + err.message);
+      }).finally(function(){
+        btn.disabled = false;
+        btn.innerHTML = original;
+      });
+    });
+  })();
 })();
 </script>
