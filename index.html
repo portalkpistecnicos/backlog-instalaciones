@@ -420,6 +420,7 @@
     gap:1.5rem;
     align-items:center;
   }
+  .explorer-result[hidden]{ display:none; }
   .explorer-hero{
     display:flex;
     flex-direction:column;
@@ -683,7 +684,7 @@
     <div class="explorer-controls">
       <label for="bucketSelect">Selecciona un bucket (vpi_cod_bucket)</label>
       <select id="bucketSelect" class="bucket-select">
-        <option value="__ALL__">Todos los buckets</option>
+        <option value="" disabled selected>Elige un bucket…</option>
       </select>
     </div>
 
@@ -712,33 +713,7 @@
       </div>
     </div>
 
-    <div class="explorer-table-wrap" id="explorerAll">
-      <table class="explorer-table">
-        <thead>
-          <tr>
-            <th>Bucket</th>
-            <th>Cancelada</th>
-            <th>En proceso</th>
-            <th>Terminada</th>
-            <th>Total general</th>
-            <th>Backlog</th>
-          </tr>
-        </thead>
-        <tbody id="bucketTableBody"></tbody>
-        <tfoot>
-          <tr>
-            <td>Zona Norte (todos)</td>
-            <td id="bkAllCanc">–</td>
-            <td id="bkAllProc">–</td>
-            <td id="bkAllTerm">–</td>
-            <td id="bkAllTotal">–</td>
-            <td id="bkAllBacklog">–</td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-
-    <p class="explorer-note">Recuento de <code>peti_numero</code> por <code>vpi_cod_bucket</code>, acumulado de todos los snapshots disponibles (<span id="bucketPeriodNote2">–</span>). Al igual que las tarjetas por agencia, excluye filas con <code>filtro_backlog_exclusion=1</code>; a diferencia de ellas, suma <b style="color:var(--ink);">todo el período</b> en vez de solo el snapshot del día — por eso los valores de backlog no coinciden exactamente con la vista por agencia. Ordenado de mayor a menor backlog.</p>
+    <p class="explorer-note">Recuento de <code>peti_numero</code> por <code>vpi_cod_bucket</code>, acumulado de todos los snapshots disponibles (<span id="bucketPeriodNote2">–</span>). Al igual que las tarjetas por agencia, excluye filas con <code>filtro_backlog_exclusion=1</code>; a diferencia de ellas, suma <b style="color:var(--ink);">todo el período</b> en vez de solo el snapshot del día — por eso los valores de backlog no coinciden exactamente con la vista por agencia.</p>
   </section>
 
   <section class="method">
@@ -910,7 +885,6 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
   });
 
   var singleView = document.getElementById('explorerSingle');
-  var allView = document.getElementById('explorerAll');
 
   function renderSingle(name){
     var d = DATA.buckets[name];
@@ -923,37 +897,6 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
     setText('bkTotal', fmtInt.format(r.total));
     var heroNum = document.querySelector('.explorer-hero .num');
     heroNum.style.color = 'var(--' + severity(r.backlog) + ')';
-  }
-
-  function renderAllBuckets(){
-    var names = Object.keys(DATA.buckets).sort(function(a,b){
-      return calc(DATA.buckets[b]).backlog - calc(DATA.buckets[a]).backlog;
-    });
-    var tbody = document.getElementById('bucketTableBody');
-    tbody.innerHTML = '';
-    var sumC=0, sumP=0, sumT=0;
-
-    names.forEach(function(name){
-      var d = DATA.buckets[name];
-      var r = calc(d);
-      sumC += d.c; sumP += d.p; sumT += d.t;
-      var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td>' + name + '</td>' +
-        '<td>' + fmtInt.format(d.c) + '</td>' +
-        '<td>' + fmtInt.format(d.p) + '</td>' +
-        '<td>' + fmtInt.format(d.t) + '</td>' +
-        '<td>' + fmtInt.format(r.total) + '</td>' +
-        '<td><span class="bk-pill ' + severity(r.backlog) + '">' + fmtDec(r.backlog) + '</span></td>';
-      tbody.appendChild(tr);
-    });
-
-    var totalAll = calc({ c:sumC, p:sumP, t:sumT });
-    setText('bkAllCanc', fmtInt.format(sumC));
-    setText('bkAllProc', fmtInt.format(sumP));
-    setText('bkAllTerm', fmtInt.format(sumT));
-    setText('bkAllTotal', fmtInt.format(totalAll.total));
-    setText('bkAllBacklog', fmtDec(totalAll.backlog));
   }
 
   function renderConsolidated(){
@@ -989,21 +932,16 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
 
   function onChange(){
     var val = select.value;
-    if(val === '__ALL__'){
+    if(!val){
       singleView.hidden = true;
-      allView.hidden = false;
-    } else {
-      allView.hidden = true;
-      singleView.hidden = false;
-      renderSingle(val);
+      return;
     }
+    singleView.hidden = false;
+    renderSingle(val);
   }
 
   select.addEventListener('change', onChange);
 
   renderConsolidated();
-  renderAllBuckets();
-  select.value = '__ALL__';
-  onChange();
 })();
 </script>
