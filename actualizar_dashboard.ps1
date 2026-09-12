@@ -43,28 +43,16 @@ try {
     $data = Import-Csv -Path $csvFile.FullName -Delimiter ';' -Encoding UTF8
     Write-Log "Filas leidas: $($data.Count)"
 
-    # 1b. El formato de fecha con guion cambia entre archivos mensuales (se ha visto
-    # dd-MM-yyyy y tambien MM-dd-yyyy). Se detecta comparando contra el año-mes que
-    # indica el propio nombre del archivo (ej. "..._2026-09.csv" -> mes=09).
-    $fileNameMatch = [regex]::Match($csvFile.Name, '_(\d{4})-(\d{2})\.csv$')
-    $expectedMonth = if ($fileNameMatch.Success) { [int]$fileNameMatch.Groups[2].Value } else { $null }
-
-    $sampleDates = $data | Select-Object -First 300 -ExpandProperty partition_date |
-        Where-Object { $_ -match '^\d{2}-\d{2}-\d{4}$' } | Select-Object -Unique
+    # 1b. Formato de fecha con guion: FIJO en dd-MM-yyyy (confirmado 2026-09-12 como el
+    # formato real usado tanto en partition_date como en peti_fecha_ingreso/dia_especifico
+    # para este origen de datos). La deteccion automatica previa (comparar contra el mes
+    # del nombre del archivo, sobre una muestra de las primeras 300 filas) resulto poco
+    # fiable: con datos de un solo mes (dia siempre <=12 al inicio de mes) alternaba entre
+    # dd-MM-yyyy y MM-dd-yyyy de una corrida a otra segun que filas quedaran en la muestra,
+    # y cuando elegia mal corrompia silenciosamente "Agenda vencida" y "No atendidas"
+    # (confirmado con diferencias reales en los snapshots del 03, 04 y 09-09-2026).
     $DashFormat = 'dd-MM-yyyy'
-    if ($expectedMonth -and $sampleDates) {
-        $ddmmOk = $true; $mmddOk = $true
-        foreach ($s in $sampleDates) {
-            $dt1 = [datetime]::MinValue
-            if (-not [datetime]::TryParseExact($s, 'dd-MM-yyyy', $Inv, [System.Globalization.DateTimeStyles]::None, [ref]$dt1) -or $dt1.Month -ne $expectedMonth) { $ddmmOk = $false }
-            $dt2 = [datetime]::MinValue
-            if (-not [datetime]::TryParseExact($s, 'MM-dd-yyyy', $Inv, [System.Globalization.DateTimeStyles]::None, [ref]$dt2) -or $dt2.Month -ne $expectedMonth) { $mmddOk = $false }
-        }
-        if ($mmddOk -and -not $ddmmOk) { $DashFormat = 'MM-dd-yyyy' }
-        elseif ($ddmmOk -and -not $mmddOk) { $DashFormat = 'dd-MM-yyyy' }
-        else { Write-Log "AVISO: no se pudo determinar sin ambiguedad el formato de fecha; se usa $DashFormat por defecto" }
-    }
-    Write-Log "Formato de fecha (guion) detectado para este archivo: $DashFormat"
+    Write-Log "Formato de fecha (guion) fijado para este archivo: $DashFormat"
 
     function Parse-FlexibleDate {
         param([string]$s)
