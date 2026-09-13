@@ -1,4 +1,6 @@
 <title>Backlog Instalaciones</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -165,6 +167,81 @@
     line-height:1.6;
   }
   .brandbar-meta .date{ color:var(--brand-blue); font-weight:700; font-size:0.92rem; }
+
+  /* ---------- Toolbar: theme toggle + downloads ---------- */
+  .brandbar-actions{
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+  .theme-toggle{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:40px;
+    height:40px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--surface-2);
+    color:var(--brand-blue);
+    cursor:pointer;
+    flex-shrink:0;
+    transition:background 0.15s, border-color 0.15s;
+  }
+  .theme-toggle:hover{ border-color:var(--brand-blue); }
+  .theme-toggle svg{ width:19px; height:19px; display:block; }
+  .theme-toggle .icon-sun{ display:none; }
+  .theme-toggle .icon-moon{ display:block; }
+  :root[data-theme="dark"] .theme-toggle .icon-sun{ display:block; }
+  :root[data-theme="dark"] .theme-toggle .icon-moon{ display:none; }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .theme-toggle .icon-sun{ display:block; }
+    :root:not([data-theme="light"]) .theme-toggle .icon-moon{ display:none; }
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:0.45rem;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.82rem;
+    font-weight:600;
+    padding:0.6rem 1rem;
+    border-radius:10px;
+    border:1px solid transparent;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:filter 0.15s, background 0.15s;
+  }
+  .btn svg{ width:16px; height:16px; flex-shrink:0; }
+  .btn-outline{
+    background:var(--surface-2);
+    border-color:var(--border);
+    color:var(--ink);
+  }
+  .btn-outline:hover{ border-color:var(--brand-blue); color:var(--brand-blue); }
+  .btn-solid{
+    background:var(--brand-orange);
+    color:#fff;
+  }
+  .btn-solid:hover{ filter:brightness(1.06); }
+  .btn:disabled{ opacity:0.55; cursor:progress; filter:none; }
+
+  @media (max-width: 640px){
+    .brandbar-actions{ flex-wrap:wrap; }
+    .btn span.btn-label{ display:none; }
+    .btn{ padding:0.6rem 0.7rem; }
+  }
+
+  /* ---------- Print ---------- */
+  @media print{
+    .no-print{ display:none !important; }
+    body{ background:#fff; }
+    .brandbar{ box-shadow:none; border-bottom-color:#F47C02; }
+    .card, .compare, .explorer, .summary{ box-shadow:none; break-inside:avoid; }
+    .wrap{ max-width:100%; }
+    a[href]:after{ content:""; }
+  }
 
   /* ---------- Summary strip ---------- */
   .summary{
@@ -420,6 +497,7 @@
     gap:1.5rem;
     align-items:center;
   }
+  .explorer-result[hidden]{ display:none; }
   .explorer-hero{
     display:flex;
     flex-direction:column;
@@ -588,6 +666,21 @@
         <p>Informe gerencial · <b>Zona Norte</b> · Viña del Mar, Valparaíso, San Antonio</p>
       </div>
     </div>
+    <div class="brandbar-actions no-print">
+      <button type="button" class="theme-toggle" id="themeToggle" title="Cambiar tema claro / oscuro" aria-label="Cambiar tema claro / oscuro">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5A8.5 8.5 0 1 1 11.5 3 6.5 6.5 0 0 0 21 12.5Z"/></svg>
+      </button>
+      <button type="button" class="btn btn-outline" id="btnPdf" title="Descargar PDF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        <span class="btn-label">PDF</span>
+      </button>
+      <button type="button" class="btn btn-solid" id="btnExcel" title="Descargar Excel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9.5 12.5l5 5M14.5 12.5l-5 5"/></svg>
+        <span class="btn-label">Excel</span>
+      </button>
+    </div>
+
     <div class="brandbar-meta">
       <div>Snapshot más reciente</div>
       <div class="date" id="snapshotDate">–</div>
@@ -683,7 +776,7 @@
     <div class="explorer-controls">
       <label for="bucketSelect">Selecciona un bucket (vpi_cod_bucket)</label>
       <select id="bucketSelect" class="bucket-select">
-        <option value="__ALL__">Todos los buckets</option>
+        <option value="" selected>Elige un bucket…</option>
       </select>
     </div>
 
@@ -712,33 +805,7 @@
       </div>
     </div>
 
-    <div class="explorer-table-wrap" id="explorerAll">
-      <table class="explorer-table">
-        <thead>
-          <tr>
-            <th>Bucket</th>
-            <th>Cancelada</th>
-            <th>En proceso</th>
-            <th>Terminada</th>
-            <th>Total general</th>
-            <th>Backlog</th>
-          </tr>
-        </thead>
-        <tbody id="bucketTableBody"></tbody>
-        <tfoot>
-          <tr>
-            <td>Zona Norte (todos)</td>
-            <td id="bkAllCanc">–</td>
-            <td id="bkAllProc">–</td>
-            <td id="bkAllTerm">–</td>
-            <td id="bkAllTotal">–</td>
-            <td id="bkAllBacklog">–</td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-
-    <p class="explorer-note">Recuento de <code>peti_numero</code> por <code>vpi_cod_bucket</code>, acumulado de todos los snapshots disponibles (<span id="bucketPeriodNote2">–</span>). Al igual que las tarjetas por agencia, excluye filas con <code>filtro_backlog_exclusion=1</code>; a diferencia de ellas, suma <b style="color:var(--ink);">todo el período</b> en vez de solo el snapshot del día — por eso los valores de backlog no coinciden exactamente con la vista por agencia. Ordenado de mayor a menor backlog.</p>
+    <p class="explorer-note">Recuento de <code>peti_numero</code> por <code>vpi_cod_bucket</code>, acumulado de todos los snapshots disponibles (<span id="bucketPeriodNote2">–</span>). Al igual que las tarjetas por agencia, excluye filas con <code>filtro_backlog_exclusion=1</code>; a diferencia de ellas, suma <b style="color:var(--ink);">todo el período</b> en vez de solo el snapshot del día — por eso los valores de backlog no coinciden exactamente con la vista por agencia.</p>
   </section>
 
   <section class="method">
@@ -757,7 +824,7 @@
 // El script actualizar_dashboard.ps1 reemplaza SOLO el contenido entre
 // los marcadores DATA_START y DATA_END cada vez que corre - el resto del
 // archivo (HTML, CSS, logica de render) no cambia dia a dia.
-var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_2026-09.csv","snapshotDate":"11-09-2026","snapshotCount":10,"periodLabel":"01-09 al 11-09-2026","generatedAt":"12-09-2026 01:37","agencies":[{"name":"Viña del Mar","enProceso":404,"terminada":497,"cancelada":218,"agendaCon":344,"agendaVencida":176,"sinAtender1Dia":280},{"name":"Valparaíso","enProceso":172,"terminada":298,"cancelada":69,"agendaCon":153,"agendaVencida":78,"sinAtender1Dia":124},{"name":"San Antonio","enProceso":82,"terminada":87,"cancelada":29,"agendaCon":62,"agendaVencida":22,"sinAtender1Dia":54}],"agencyConsolidated":[{"name":"Viña del Mar","c":2471,"p":3739,"t":5610},{"name":"Valparaíso","c":1040,"p":1834,"t":3366},{"name":"San Antonio","c":333,"p":574,"t":966}],"buckets":{"SAN ANTONIO 1_MULT":{"c":187,"p":341,"t":723},"VALPARAISO 3_MULT":{"c":153,"p":355,"t":886},"VINA DEL MAR 2_MULT":{"c":570,"p":993,"t":1548},"VINA DEL MAR 1_MULT":{"c":600,"p":672,"t":975},"VINA DEL MAR 3_MULT":{"c":542,"p":937,"t":1534},"VALPARAISO 1_MULT":{"c":362,"p":650,"t":1318},"VINA DEL MAR 4_MULT":{"c":470,"p":701,"t":1013},"VALPARAISO 4_MULT":{"c":329,"p":506,"t":647},"VINA DEL MAR 5_MULT":{"c":234,"p":320,"t":455},"VALPARAISO 2_MULT":{"c":162,"p":309,"t":478},"SAN ANTONIO 3_MULT":{"c":101,"p":184,"t":182},"PRIORITY_V_REGION_MULT":{"c":77,"p":107,"t":122},"SAN ANTONIO 2_MULT":{"c":41,"p":48,"t":61},"APOQUINDO 1_MULT":{"c":4,"p":null,"t":0}}}/*DATA_END*/;
+var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_2026-09.csv","snapshotDate":"11-09-2026","snapshotCount":10,"periodLabel":"01-09 al 11-09-2026","generatedAt":"13-09-2026 11:30","agencies":[{"name":"Viña del Mar","enProceso":404,"terminada":497,"cancelada":218,"agendaCon":344,"agendaVencida":176,"sinAtender1Dia":280},{"name":"Valparaíso","enProceso":172,"terminada":298,"cancelada":69,"agendaCon":153,"agendaVencida":78,"sinAtender1Dia":124},{"name":"San Antonio","enProceso":82,"terminada":87,"cancelada":29,"agendaCon":62,"agendaVencida":22,"sinAtender1Dia":54}],"agencyConsolidated":[{"name":"Viña del Mar","c":2471,"p":3739,"t":5610},{"name":"Valparaíso","c":1040,"p":1834,"t":3366},{"name":"San Antonio","c":333,"p":574,"t":966}],"buckets":{"SAN ANTONIO 1_MULT":{"c":187,"p":341,"t":723},"VALPARAISO 3_MULT":{"c":153,"p":355,"t":886},"VINA DEL MAR 2_MULT":{"c":570,"p":993,"t":1548},"VINA DEL MAR 1_MULT":{"c":600,"p":672,"t":975},"VINA DEL MAR 3_MULT":{"c":542,"p":937,"t":1534},"VALPARAISO 1_MULT":{"c":362,"p":650,"t":1318},"VINA DEL MAR 4_MULT":{"c":470,"p":701,"t":1013},"VALPARAISO 4_MULT":{"c":329,"p":506,"t":647},"VINA DEL MAR 5_MULT":{"c":234,"p":320,"t":455},"VALPARAISO 2_MULT":{"c":162,"p":309,"t":478},"SAN ANTONIO 3_MULT":{"c":101,"p":184,"t":182},"PRIORITY_V_REGION_MULT":{"c":77,"p":107,"t":122},"SAN ANTONIO 2_MULT":{"c":41,"p":48,"t":61},"APOQUINDO 1_MULT":{"c":4,"p":null,"t":0}}}/*DATA_END*/;
 
 (function(){
   var DATA = DASHBOARD_DATA;
@@ -910,7 +977,6 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
   });
 
   var singleView = document.getElementById('explorerSingle');
-  var allView = document.getElementById('explorerAll');
 
   function renderSingle(name){
     var d = DATA.buckets[name];
@@ -923,37 +989,6 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
     setText('bkTotal', fmtInt.format(r.total));
     var heroNum = document.querySelector('.explorer-hero .num');
     heroNum.style.color = 'var(--' + severity(r.backlog) + ')';
-  }
-
-  function renderAllBuckets(){
-    var names = Object.keys(DATA.buckets).sort(function(a,b){
-      return calc(DATA.buckets[b]).backlog - calc(DATA.buckets[a]).backlog;
-    });
-    var tbody = document.getElementById('bucketTableBody');
-    tbody.innerHTML = '';
-    var sumC=0, sumP=0, sumT=0;
-
-    names.forEach(function(name){
-      var d = DATA.buckets[name];
-      var r = calc(d);
-      sumC += d.c; sumP += d.p; sumT += d.t;
-      var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td>' + name + '</td>' +
-        '<td>' + fmtInt.format(d.c) + '</td>' +
-        '<td>' + fmtInt.format(d.p) + '</td>' +
-        '<td>' + fmtInt.format(d.t) + '</td>' +
-        '<td>' + fmtInt.format(r.total) + '</td>' +
-        '<td><span class="bk-pill ' + severity(r.backlog) + '">' + fmtDec(r.backlog) + '</span></td>';
-      tbody.appendChild(tr);
-    });
-
-    var totalAll = calc({ c:sumC, p:sumP, t:sumT });
-    setText('bkAllCanc', fmtInt.format(sumC));
-    setText('bkAllProc', fmtInt.format(sumP));
-    setText('bkAllTerm', fmtInt.format(sumT));
-    setText('bkAllTotal', fmtInt.format(totalAll.total));
-    setText('bkAllBacklog', fmtDec(totalAll.backlog));
   }
 
   function renderConsolidated(){
@@ -989,21 +1024,173 @@ var DASHBOARD_DATA = /*DATA_START*/{"sourceFile":"base-backlog-instalaciones_202
 
   function onChange(){
     var val = select.value;
-    if(val === '__ALL__'){
+    if(!val){
       singleView.hidden = true;
-      allView.hidden = false;
-    } else {
-      allView.hidden = true;
-      singleView.hidden = false;
-      renderSingle(val);
+      return;
     }
+    singleView.hidden = false;
+    renderSingle(val);
   }
 
   select.addEventListener('change', onChange);
 
   renderConsolidated();
-  renderAllBuckets();
-  select.value = '__ALL__';
-  onChange();
+
+  // ---- Theme toggle (claro / oscuro, persistido en localStorage) ----
+  (function(){
+    var root = document.documentElement;
+    var toggle = document.getElementById('themeToggle');
+    var KEY = 'bi_theme';
+    var saved = null;
+    try { saved = localStorage.getItem(KEY); } catch(e){}
+    if (saved === 'light' || saved === 'dark') { root.setAttribute('data-theme', saved); }
+
+    function current(){
+      var attr = root.getAttribute('data-theme');
+      if (attr === 'light' || attr === 'dark') return attr;
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    toggle.addEventListener('click', function(){
+      var next = current() === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem(KEY, next); } catch(e){}
+    });
+  })();
+
+  // ---- Descargar PDF (impresion del navegador, forzando tema claro) ----
+  (function(){
+    var root = document.documentElement;
+    var btn = document.getElementById('btnPdf');
+    var prevTheme = null;
+    window.addEventListener('beforeprint', function(){
+      prevTheme = root.getAttribute('data-theme');
+      root.setAttribute('data-theme', 'light');
+    });
+    window.addEventListener('afterprint', function(){
+      if (prevTheme === null) { root.removeAttribute('data-theme'); }
+      else { root.setAttribute('data-theme', prevTheme); }
+    });
+    btn.addEventListener('click', function(){ window.print(); });
+  })();
+
+  // ---- Descargar Excel (ExcelJS, cargado bajo demanda) ----
+  (function(){
+    var btn = document.getElementById('btnExcel');
+    var CDN = 'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
+    var loadPromise = null;
+
+    function loadExcelJS(){
+      if (window.ExcelJS) return Promise.resolve();
+      if (loadPromise) return loadPromise;
+      loadPromise = new Promise(function(resolve, reject){
+        var s = document.createElement('script');
+        s.src = CDN;
+        s.onload = function(){ resolve(); };
+        s.onerror = function(){ reject(new Error('No se pudo cargar ExcelJS')); };
+        document.head.appendChild(s);
+      });
+      return loadPromise;
+    }
+
+    function headerRow(ws, values){
+      var row = ws.addRow(values);
+      row.eachCell(function(cell){
+        cell.font = { bold:true, color:{argb:'FFFFFFFF'} };
+        cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FF003D86'} };
+        cell.alignment = { vertical:'middle' };
+      });
+      return row;
+    }
+
+    function autoWidth(ws){
+      ws.columns.forEach(function(col){
+        var max = 10;
+        col.eachCell({ includeEmpty:true }, function(cell){
+          var len = (cell.value === null || cell.value === undefined) ? 0 : String(cell.value).length;
+          if (len > max) max = len;
+        });
+        col.width = Math.min(max + 2, 42);
+      });
+    }
+
+    function buildWorkbook(){
+      var wb = new ExcelJS.Workbook();
+      wb.creator = 'Backlog Instalaciones';
+      wb.created = new Date();
+
+      // Resumen
+      var wsR = wb.addWorksheet('Resumen');
+      wsR.addRow(['Backlog Instalaciones - Zona Norte']).font = { bold:true, size:14 };
+      wsR.addRow(['Snapshot más reciente', DATA.snapshotDate]);
+      wsR.addRow(['Actualizado', DATA.generatedAt]);
+      wsR.addRow([]);
+      headerRow(wsR, ['Métrica','Valor']);
+      wsR.addRow(['En proceso (hoy)', zone.enProceso]);
+      wsR.addRow(['Terminadas (hoy)', zone.terminada]);
+      wsR.addRow(['Canceladas (hoy)', zone.cancelada]);
+      wsR.addRow(['No atendidas (>1 día)', zone.sinAtender1Dia]);
+      wsR.addRow(['Backlog Instala Zona Norte (días)', Number(zoneCalc.backlog.toFixed(2))]);
+      wsR.addRow(['Meta (días)', META_BACKLOG]);
+      autoWidth(wsR);
+
+      // Por Agencia
+      var wsA = wb.addWorksheet('Por Agencia');
+      var hA = headerRow(wsA, ['Agencia','En Proceso','Terminada','Cancelada','Backlog (días)','Agenda Con','Agenda Vencida','% Agenda Vencida','No Atendidas >1d','% No Atendidas']);
+      agencies.forEach(function(a){
+        wsA.addRow([a.name, a.enProceso, a.terminada, a.cancelada, Number(a.backlog.toFixed(2)), a.agendaCon, a.agendaVencida, Number(a.agendaPct.toFixed(1)), a.sinAtender1Dia, Number(a.sinAtenderPct.toFixed(1))]);
+      });
+      wsA.autoFilter = { from:'A1', to: String.fromCharCode(64 + hA.cellCount) + '1' };
+      autoWidth(wsA);
+
+      // Consolidado por Agencia
+      var wsC = wb.addWorksheet('Consolidado Agencia');
+      var hC = headerRow(wsC, ['Agencia','Cancelada','En Proceso','Terminada','Total General','Backlog (días)']);
+      (DATA.agencyConsolidated || []).forEach(function(a){
+        var r = calc(a);
+        wsC.addRow([a.name, a.c, a.p, a.t, r.total, Number(r.backlog.toFixed(2))]);
+      });
+      wsC.autoFilter = { from:'A1', to: String.fromCharCode(64 + hC.cellCount) + '1' };
+      autoWidth(wsC);
+
+      // Por Bucket
+      var wsB = wb.addWorksheet('Por Bucket');
+      var hB = headerRow(wsB, ['Bucket','Cancelada','En Proceso','Terminada','Total General','Backlog (días)']);
+      Object.keys(DATA.buckets).forEach(function(name){
+        var d = DATA.buckets[name];
+        var r = calc(d);
+        wsB.addRow([name, d.c, d.p, d.t, r.total, Number(r.backlog.toFixed(2))]);
+      });
+      wsB.autoFilter = { from:'A1', to: String.fromCharCode(64 + hB.cellCount) + '1' };
+      autoWidth(wsB);
+
+      return wb;
+    }
+
+    btn.addEventListener('click', function(){
+      var original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="btn-label">Generando…</span>';
+      loadExcelJS().then(function(){
+        var wb = buildWorkbook();
+        return wb.xlsx.writeBuffer();
+      }).then(function(buffer){
+        var blob = new Blob([buffer], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'backlog-instalaciones-' + DATA.snapshotDate + '.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+      }).catch(function(err){
+        console.error(err);
+        alert('No se pudo generar el Excel: ' + err.message);
+      }).finally(function(){
+        btn.disabled = false;
+        btn.innerHTML = original;
+      });
+    });
+  })();
 })();
 </script>
