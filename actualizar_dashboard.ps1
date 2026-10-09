@@ -43,16 +43,34 @@ try {
     $data = Import-Csv -Path $csvFile.FullName -Delimiter ';' -Encoding UTF8
     Write-Log "Filas leidas: $($data.Count)"
 
-    # 1b. Formato de fecha con guion: FIJO en dd-MM-yyyy (confirmado 2026-09-12 como el
-    # formato real usado tanto en partition_date como en peti_fecha_ingreso/dia_especifico
-    # para este origen de datos). La deteccion automatica previa (comparar contra el mes
-    # del nombre del archivo, sobre una muestra de las primeras 300 filas) resulto poco
-    # fiable: con datos de un solo mes (dia siempre <=12 al inicio de mes) alternaba entre
-    # dd-MM-yyyy y MM-dd-yyyy de una corrida a otra segun que filas quedaran en la muestra,
-    # y cuando elegia mal corrompia silenciosamente "Agenda vencida" y "No atendidas"
-    # (confirmado con diferencias reales en los snapshots del 03, 04 y 09-09-2026).
+    # 1b. Formato de fecha con guion. El sistema origen cambia el formato entre
+    # exportaciones del mismo archivo mensual (dd-MM-yyyy en septiembre, MM-dd-yyyy en
+    # octubre, y se han visto ambos dentro de un mismo mes). NO se puede fijar: se detecta
+    # en cada corrida comparando TODAS las fechas unicas de partition_date (son pocas,
+    # una por snapshot) contra el mes que indica el nombre del archivo
+    # (ej. "..._2026-10.csv" -> mes=10). Un formato es valido solo si todas las fechas
+    # caen en ese mes. (2026-10-09: un formato fijo dd-MM-yyyy leyo el CSV de octubre como
+    # septiembre y pisó el historico del 10-09; por eso este chequeo es obligatorio.)
+    $fileNameMatch = [regex]::Match($csvFile.Name, '_(\d{4})-(\d{2})\.csv$')
+    $expectedMonth = if ($fileNameMatch.Success) { [int]$fileNameMatch.Groups[2].Value } else { $null }
+
+    $uniqueDates = @($data | Select-Object -ExpandProperty partition_date -Unique |
+        Where-Object { $_ -match '^\d{2}-\d{2}-\d{4}$' })
     $DashFormat = 'dd-MM-yyyy'
-    Write-Log "Formato de fecha (guion) fijado para este archivo: $DashFormat"
+    if ($expectedMonth -and $uniqueDates.Count -gt 0) {
+        $ddmmOk = $true; $mmddOk = $true
+        foreach ($s in $uniqueDates) {
+            $dt1 = [datetime]::MinValue
+            if (-not [datetime]::TryParseExact($s, 'dd-MM-yyyy', $Inv, [System.Globalization.DateTimeStyles]::None, [ref]$dt1) -or $dt1.Month -ne $expectedMonth) { $ddmmOk = $false }
+            $dt2 = [datetime]::MinValue
+            if (-not [datetime]::TryParseExact($s, 'MM-dd-yyyy', $Inv, [System.Globalization.DateTimeStyles]::None, [ref]$dt2) -or $dt2.Month -ne $expectedMonth) { $mmddOk = $false }
+        }
+        if ($mmddOk -and -not $ddmmOk) { $DashFormat = 'MM-dd-yyyy' }
+        elseif ($ddmmOk -and -not $mmddOk) { $DashFormat = 'dd-MM-yyyy' }
+        elseif ($ddmmOk -and $mmddOk) { Write-Log "AVISO: fechas ambiguas (valen en ambos formatos, ej. 09-09); se usa $DashFormat por defecto" }
+        else { throw "Ninguna interpretacion (dd-MM / MM-dd) de partition_date cae en el mes $expectedMonth del archivo $($csvFile.Name): $($uniqueDates -join ', '). Se aborta sin guardar ni publicar." }
+    }
+    Write-Log "Formato de fecha (guion) detectado para este archivo: $DashFormat"
 
     function Parse-FlexibleDate {
         param([string]$s)
